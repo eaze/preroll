@@ -1,0 +1,19 @@
+[package]
+name = "preroll"
+version = "0.0.0"
+authors = [
+    "Jeremiah Senkpiel <fishrock123@rocketmail.com>",
+]
+edition = "2018"
+license = "BlueOak-1.0.0"
+description = "Name reserved for a crate of prerolled Rust tools."
+readme = "README.md"
+keywords = []
+categories = []
+
+[dependencies]
+
+[dev-dependencies.cargo-husky]
+version = "1"
+default-features = false
+features = ["user-hooks"]
