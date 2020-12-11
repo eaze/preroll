@@ -12,8 +12,83 @@ keywords = []
 categories = []
 
 [dependencies]
+cfg-if = "1.0.0"
+color-eyre = "0.5.10"
+dotenv = "0.15.0"
+env_logger = "0.8.1"
+gethostname = "0.2.1"
+kv-log-macro = "1.0.4"
+lazy_static = "1.4.0"
+log = "0.4.11"
+serde_json = "1.0.58"
+tracing = "0.1.22"
+tracing-futures = "0.2.4"
+tracing-honeycomb = "0.1.0"
+
+# stuff copied from the unpublished beeline-rust
+base64 = "0.13.0"
+thiserror = "1.0.22"
+# -- beeline-rust
+
+[dependencies.anyhow]
+version = "1.0.35"
+
+[dependencies.async-std]
+version = "1.8.0"
+features = ["attributes"]
+
+[dependencies.chrono]
+version = "0.4.19"
+features = ["serde"]
+
+[dependencies.serde]
+version = "1.0.116"
+features = ["derive"]
+
+[dependencies.surf]
+version = "2.1.0"
+default-features = false
+features = ["curl-client", "encoding"]
+
+[dependencies.sqlx]
+version = "0.4.1"
+features = ["runtime-async-std-native-tls", "postgres", "json", "chrono", "uuid"]
+
+[dependencies.tide]
+version = "0.15.0"
+default-features = false
+features = ["h1-server"]
+
+[dependencies.tide-sqlx]
+version = "0.3.1"
+default-features = false
+features = ["native-tls", "postgres"]
+
+[dependencies.tracing-subscriber]
+version = "0.2.15"
+default-features = false
+features = ["env-filter", "registry"]
+
+[dependencies.libhoney-rust]
+version = "0.1.4"
+default-features = false
+features = ["runtime-async-std"]
+
+[dependencies.uuid]
+version = "0.8.1"
+features = ["serde", "v4"]
+
+# Dev-deps
 
 [dev-dependencies.cargo-husky]
 version = "1"
 default-features = false
 features = ["user-hooks"]
+
+# Dependency overrides
+
+[patch.crates-io.libhoney-rust]
+git = "https://github.com/eaze/libhoney-rust.git"
+branch = "runtime-async-std"
+default-features = false
+features = ["runtime-async-std"]
