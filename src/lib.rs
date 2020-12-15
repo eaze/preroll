@@ -46,13 +46,13 @@ macro_rules! main {
         $crate::main!(service_name, (), async { () }, routes_setup);
     };
 
-    // preroll::main!("service-name", StateType, state_setup_function, routes_setup_function);
-    ($service_name:tt, $state_type:ty, $state_setup:tt, $routes_setup:tt) => {
+    // preroll::main!("service-name", state_setup_function, routes_setup_function);
+    ($service_name:tt, $state_setup:tt, $routes_setup:tt) => {
         fn main() -> preroll::setup::SetupResult<()> {
             preroll::setup::block_on(async {
                 preroll::setup::initial_setup($service_name)?;
 
-                let state: $state_type = $state_setup().await?;
+                let state = $state_setup().await?;
 
                 let mut server = preroll::setup::setup_middleware($service_name, state).await?;
 
