@@ -48,7 +48,7 @@ macro_rules! main {
 
     // preroll::main!("service-name", state_setup_function, routes_setup_function);
     ($service_name:tt, $state_setup:tt, $routes_setup:tt) => {
-        fn main() -> preroll::setup::SetupResult<()> {
+        fn main() -> preroll::setup::Result<()> {
             preroll::setup::block_on(async {
                 preroll::setup::initial_setup($service_name)?;
 

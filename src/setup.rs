@@ -31,7 +31,8 @@ use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware}
 
 use crate::logging::{log_format_json, log_format_pretty};
 
-pub type SetupResult<T> = color_eyre::eyre::Result<T>;
+type SetupResult<T> = color_eyre::eyre::Result<T>;
+pub type Result<T> = SetupResult<T>;
 
 #[cfg_attr(not(feature = "honeycomb"), allow(unused_variables))]
 pub fn initial_setup(service_name: &'static str) -> SetupResult<()> {
