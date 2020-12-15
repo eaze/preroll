@@ -1,25 +1,41 @@
 use std::env;
 use std::sync::Arc;
 
-use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
-use sqlx::ConnectOptions;
+use cfg_if::cfg_if;
 use tide::listener::Listener;
 use tide::Server;
-use tracing_honeycomb::{new_blackhole_telemetry_layer, new_honeycomb_telemetry_layer};
-use tracing_subscriber::filter::LevelFilter;
-use tracing_subscriber::prelude::*;
-use tracing_subscriber::Registry;
+
+cfg_if! {
+    if #[cfg(feature = "honeycomb")] {
+        use tracing_honeycomb::{new_blackhole_telemetry_layer, new_honeycomb_telemetry_layer};
+        use tracing_subscriber::filter::LevelFilter;
+        use tracing_subscriber::prelude::*;
+        use tracing_subscriber::Registry;
+
+        use crate::middleware::TraceMiddleware;
+    }
+}
+
+cfg_if! {
+    if #[cfg(feature = "postgres")] {
+        use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+        use sqlx::ConnectOptions;
+
+        use crate::middleware::PostgresMiddleware;
+    }
+}
 
 pub use async_std::task::block_on;
 
 use crate::middleware::{
-    JsonErrorMiddleware, LogMiddleware, PostgresMiddleware, RequestIdMiddleware, TraceMiddleware,
+    JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware,
 };
 
 use crate::utils::{log_format_json, log_format_pretty};
 
 pub type SetupResult<T> = color_eyre::eyre::Result<T>;
 
+#[cfg_attr(not(feature = "honeycomb"), allow(unused_variables))]
 pub fn initial_setup(service_name: &'static str) -> SetupResult<()> {
     color_eyre::install()?;
 
@@ -59,48 +75,51 @@ pub fn initial_setup(service_name: &'static str) -> SetupResult<()> {
 
     log::info!("Logger started - level: {}", log_level);
 
-    let trace_filter: LevelFilter = env::var("TRACELEVEL")
-        .map(|v| v.parse())
-        .unwrap_or(Ok(LevelFilter::INFO))?;
-
     // Tracing (Honeycomb)
-    {
-        if let Ok(honeycomb_key) = env::var("HONEYCOMBIO_WRITE_KEY") {
-            let honeycomb_config = libhoney::Config {
-                options: libhoney::client::Options {
-                    api_key: honeycomb_key,
-                    dataset: format!("{}-{}", service_name, environment),
-                    ..libhoney::client::Options::default()
-                },
-                transmission_options: libhoney::transmission::Options::default(),
-            };
+    cfg_if! {
+        if #[cfg(feature = "honeycomb")] {
+            let trace_filter: LevelFilter = env::var("TRACELEVEL")
+                .map(|v| v.parse())
+                .unwrap_or(Ok(LevelFilter::INFO))?;
 
-            let telemetry_layer = new_honeycomb_telemetry_layer(service_name, honeycomb_config);
-            let subscriber = Registry::default()
-                .with(trace_filter) // filter out low-level debug tracing
-                // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
-                .with(telemetry_layer); // publish to honeycomb backend
+            if let Ok(honeycomb_key) = env::var("HONEYCOMBIO_WRITE_KEY") {
+                let honeycomb_config = libhoney::Config {
+                    options: libhoney::client::Options {
+                        api_key: honeycomb_key,
+                        dataset: format!("{}-{}", service_name, environment),
+                        ..libhoney::client::Options::default()
+                    },
+                    transmission_options: libhoney::transmission::Options::default(),
+                };
 
-            tracing::subscriber::set_global_default(subscriber)?;
+                let telemetry_layer = new_honeycomb_telemetry_layer(service_name, honeycomb_config);
+                let subscriber = Registry::default()
+                    .with(trace_filter) // filter out low-level debug tracing
+                    // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
+                    .with(telemetry_layer); // publish to honeycomb backend
 
-            log::info!("Honeycomb Tracing enabled - filter: {}", trace_filter);
-        } else {
-            let telemetry_layer = new_blackhole_telemetry_layer();
+                tracing::subscriber::set_global_default(subscriber)?;
 
-            let subscriber = Registry::default()
-                .with(trace_filter) // filter out low-level debug tracing
-                // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
-                .with(telemetry_layer); // publish to honeycomb backend
+                log::info!("Honeycomb Tracing enabled - filter: {}", trace_filter);
+            } else {
+                let telemetry_layer = new_blackhole_telemetry_layer();
 
-            tracing::subscriber::set_global_default(subscriber)?;
+                let subscriber = Registry::default()
+                    .with(trace_filter) // filter out low-level debug tracing
+                    // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
+                    .with(telemetry_layer); // publish to honeycomb backend
 
-            log::info!("Honeycomb Tracing off");
+                tracing::subscriber::set_global_default(subscriber)?;
+
+                log::info!("Honeycomb Tracing off");
+            }
         }
     }
 
     Ok(())
 }
 
+#[cfg_attr(not(feature = "postgres"), allow(unused_variables))]
 pub async fn setup_middleware<State>(
     service_name: &'static str,
     state: State,
@@ -110,28 +129,33 @@ where
 {
     let mut server = tide::with_state(Arc::new(state));
     server.with(RequestIdMiddleware::new());
+
+    #[cfg(feature = "honeycomb")]
     server.with(TraceMiddleware::new());
+
     server.with(LogMiddleware::new());
     server.with(JsonErrorMiddleware::new());
 
     // Postgres
-    {
-        let max_connections: u32 = env::var("PGMAXCONNECTIONS")
-            .map(|v| v.parse())
-            .unwrap_or(Ok(5))?;
+    cfg_if! {
+        if #[cfg(feature = "postgres")] {
+            let max_connections: u32 = env::var("PGMAXCONNECTIONS")
+                .map(|v| v.parse())
+                .unwrap_or(Ok(5))?;
 
-        let pgurl =
-            env::var("PGURL").unwrap_or_else(|_| format!("postgres://localhost/{}", service_name));
+            let pgurl =
+                env::var("PGURL").unwrap_or_else(|_| format!("postgres://localhost/{}", service_name));
 
-        let mut connect_opts: PgConnectOptions = pgurl.parse()?;
-        connect_opts.log_statements(log::LevelFilter::Debug);
+            let mut connect_opts: PgConnectOptions = pgurl.parse()?;
+            connect_opts.log_statements(log::LevelFilter::Debug);
 
-        let pg_pool = PgPoolOptions::new()
-            .max_connections(max_connections)
-            .connect_with(connect_opts)
-            .await?;
+            let pg_pool = PgPoolOptions::new()
+                .max_connections(max_connections)
+                .connect_with(connect_opts)
+                .await?;
 
-        server.with(PostgresMiddleware::from(pg_pool));
+            server.with(PostgresMiddleware::from(pg_pool));
+        }
     }
 
     Ok(server)

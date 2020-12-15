@@ -1,6 +1,9 @@
+use cfg_if::cfg_if;
 use kv_log_macro::{debug, error, trace, warn};
 use tide::http::headers::{REFERER, USER_AGENT};
 use tide::{Middleware, Next, Request, Result};
+
+#[cfg(features = "honeycomb")]
 use tracing_honeycomb::TraceId;
 
 use super::extension_types::{CorrelationId, RequestId};
@@ -36,7 +39,13 @@ impl LogMiddleware {
             .expect("RequestIdMiddleware must be installed before LogMiddleware.")
             .clone();
 
-        let honeycomb_trace_id = req.ext::<TraceId>().cloned();
+        cfg_if! {
+            if #[cfg(features = "honeycomb")] {
+                let honeycomb_trace_id = req.ext::<TraceId>().cloned();
+            } else {
+                let honeycomb_trace_id = Some("disabled");
+            }
+        }
 
         let path = req.url().path().to_owned();
         let method = req.method();

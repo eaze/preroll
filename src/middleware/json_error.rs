@@ -1,6 +1,8 @@
 use super::extension_types::{CorrelationId, RequestId};
 use serde::{Deserialize, Serialize};
 use tide::{Body, Middleware, Next, Request, Result};
+
+#[cfg(features = "honeycomb")]
 use tracing_honeycomb::TraceId;
 
 /// Transfrom Errors (`Result::Err`) into JSON responses.
@@ -20,6 +22,7 @@ pub struct JsonError {
     pub status: u16,
     pub request_id: RequestId,
     pub correlation_id: Option<String>,
+    #[cfg(features = "honeycomb")]
     pub honeycomb_trace_id: Option<String>,
 }
 
@@ -46,6 +49,7 @@ impl JsonErrorMiddleware {
             .expect("RequestIdMiddleware must be installed before JsonErrorMiddleware.")
             .clone();
 
+        #[cfg(features = "honeycomb")]
         let honeycomb_trace_id = req.ext::<TraceId>().cloned();
 
         let mut res = next.run(req).await;
@@ -60,6 +64,7 @@ impl JsonErrorMiddleware {
                 status: status as u16,
                 request_id,
                 correlation_id: Some(correlation_id.to_string()),
+                #[cfg(features = "honeycomb")]
                 honeycomb_trace_id: honeycomb_trace_id.map(|v| v.to_string()),
             };
             res.set_body(Body::from_json(&body)?);
@@ -93,6 +98,7 @@ impl JsonErrorMiddleware {
                     status: status as u16,
                     request_id,
                     correlation_id: None,
+                    #[cfg(features = "honeycomb")]
                     honeycomb_trace_id: honeycomb_trace_id.map(|v| v.to_string()),
                 };
                 res.set_body(Body::from_json(&body)?);
@@ -103,6 +109,7 @@ impl JsonErrorMiddleware {
                     status: status as u16,
                     request_id,
                     correlation_id: None,
+                    #[cfg(features = "honeycomb")]
                     honeycomb_trace_id: honeycomb_trace_id.map(|v| v.to_string()),
                 };
                 res.set_body(Body::from_json(&body)?);
