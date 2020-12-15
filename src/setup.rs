@@ -5,6 +5,8 @@ use cfg_if::cfg_if;
 use tide::listener::Listener;
 use tide::Server;
 
+pub use async_std::task::block_on;
+
 cfg_if! {
     if #[cfg(feature = "honeycomb")] {
         use tracing_honeycomb::{new_blackhole_telemetry_layer, new_honeycomb_telemetry_layer};
@@ -25,13 +27,9 @@ cfg_if! {
     }
 }
 
-pub use async_std::task::block_on;
+use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
 
-use crate::middleware::{
-    JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware,
-};
-
-use crate::utils::{log_format_json, log_format_pretty};
+use crate::logging::{log_format_json, log_format_pretty};
 
 pub type SetupResult<T> = color_eyre::eyre::Result<T>;
 

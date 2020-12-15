@@ -34,6 +34,7 @@
     // clippy::used_underscore_binding, // Interferes with SQLx macros
 )]
 
+pub mod logging;
 pub mod middleware;
 pub mod setup;
 pub mod utils;
