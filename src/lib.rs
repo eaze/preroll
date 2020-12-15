@@ -41,6 +41,12 @@ pub mod utils;
 
 #[macro_export]
 macro_rules! main {
+    // preroll::main!("service-name", routes_setup_function);
+    ($service_name:tt, $routes_setup:tt) => {
+        $crate::main!(service_name, (), async { () }, routes_setup);
+    };
+
+    // preroll::main!("service-name", StateType, state_setup_function, routes_setup_function);
     ($service_name:tt, $state_type:ty, $state_setup:tt, $routes_setup:tt) => {
         fn main() -> preroll::setup::SetupResult<()> {
             preroll::setup::block_on(async {
