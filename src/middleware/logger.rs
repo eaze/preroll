@@ -1,5 +1,5 @@
 use cfg_if::cfg_if;
-use kv_log_macro::{debug, error, trace, warn};
+use kv_log_macro::{error, info, trace, warn};
 use tide::http::headers::{REFERER, USER_AGENT};
 use tide::{Middleware, Next, Request, Result};
 
@@ -139,7 +139,7 @@ impl LogMiddleware {
                 });
             }
         } else {
-            debug!("{}", status.canonical_reason(), {
+            info!("{}", status.canonical_reason(), {
                 status: status as u16,
                 method: method.as_ref(),
                 path: path,
