@@ -37,6 +37,7 @@
 pub mod logging;
 pub mod middleware;
 pub mod setup;
+pub mod test_utils;
 pub mod utils;
 
 #[macro_export]

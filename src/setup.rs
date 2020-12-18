@@ -27,9 +27,8 @@ cfg_if! {
     }
 }
 
-use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
-
 use crate::logging::{log_format_json, log_format_pretty};
+use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
 
 type SetupResult<T> = color_eyre::eyre::Result<T>;
 pub type Result<T> = SetupResult<T>;
