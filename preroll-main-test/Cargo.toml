@@ -6,9 +6,17 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+test = ["preroll/test"]
+
 [dependencies]
-preroll = { path = "../", version = "0.0.0" }
-tide = "0.15"
+futures-lite = "1.11.2"
+preroll = { path = "../", features = ["panic-on-error"] }
+
+[dependencies.tide]
+version = "0.15.0"
+default-features = false
+features = ["h1-server"]
 
 [dev-dependencies]
 assert_cmd = "1.0.2"

@@ -1,17 +1,20 @@
+//! Utilities for setting up mock clients and test servers with similar features to `preroll::main!`
+
+#![allow(clippy::unwrap_used)]
+
 use std::convert::TryInto;
 use std::env;
 use std::fmt::Debug;
 use std::sync::Arc;
 
 use cfg_if::cfg_if;
-// use serde::Deserialize;
 use surf::{Client, StatusCode, Url};
 use tide::Server;
 
 use crate::logging::{log_format_json, log_format_pretty};
 use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
 
-pub use crate::middleware::json_error::JsonError;
+use crate::middleware::json_error::JsonError;
 
 #[cfg(feature = "honeycomb")]
 use tracing_subscriber::Registry;
@@ -27,11 +30,13 @@ cfg_if! {
     }
 }
 
+/// The result type to use for tests.
+///
+/// This is a `surf::Result<T>`.
 pub type TestResult<T> = surf::Result<T>;
 
 /// Creates a test application with routes and mocks set up,
 /// and hands back a client which is already connected to the server.
-///
 ///
 /// ## Example:
 /// ```
@@ -190,7 +195,7 @@ where
 cfg_if! {
     if #[cfg(feature = "postgres")] {
         #[derive(Debug, Clone)]
-        pub struct PostgresTestMiddleware(ConnectionWrap<Postgres>);
+        struct PostgresTestMiddleware(ConnectionWrap<Postgres>);
 
         #[tide::utils::async_trait]
         impl<State: Clone + Send + Sync + 'static> Middleware<State> for PostgresTestMiddleware {

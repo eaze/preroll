@@ -53,7 +53,7 @@ impl TraceMiddleware {
             propagation = Some(prop);
         } else if let Some(req_id) = req.ext::<RequestId>() {
             // Awful hacks around tracing-honeycomb's terrible TraceId api.
-            trace_id = req_id.as_str().parse()?;
+            trace_id = req_id.as_u128().to_string().parse()?;
         } else {
             trace_id = TraceId::generate();
         }

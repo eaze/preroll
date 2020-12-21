@@ -1,3 +1,8 @@
+//! The setup components which comprise `preroll::main!`.
+//!
+//! These are exposed in the event they need to be used more manually, but use is discouraged.
+//! Prefer using `preroll::main!` whenever possible.
+
 use std::env;
 use std::sync::Arc;
 
@@ -30,15 +35,19 @@ cfg_if! {
 use crate::logging::{log_format_json, log_format_pretty};
 use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
 
-type SetupResult<T> = color_eyre::eyre::Result<T>;
-pub type Result<T> = SetupResult<T>;
+/// The result type which is expected from functions passed to `preroll::main!`,
+/// and used in the return of `setup`'s functions.
+///
+/// This is a `color_eyre::eyre::Result<T>`.
+pub type Result<T> = color_eyre::eyre::Result<T>;
 
 #[cfg_attr(not(feature = "honeycomb"), allow(unused_variables))]
-pub fn initial_setup(service_name: &'static str) -> SetupResult<()> {
+pub fn initial_setup(service_name: &'static str) -> Result<()> {
     color_eyre::install()?;
 
     let log_level: log::LevelFilter;
 
+    // TODO(jeremiah): consider calling this `FORCE_DOTENV`.
     if env::var("DEBUG_DOTENV").is_ok() {
         dotenv::dotenv().ok();
     }
@@ -118,21 +127,20 @@ pub fn initial_setup(service_name: &'static str) -> SetupResult<()> {
 }
 
 #[cfg_attr(not(feature = "postgres"), allow(unused_variables))]
-pub async fn setup_middleware<State>(
+pub async fn setup_server<State>(
     service_name: &'static str,
     state: State,
-) -> SetupResult<Server<Arc<State>>>
+) -> Result<Server<Arc<State>>>
 where
     State: Send + Sync + 'static,
 {
     let mut server = tide::with_state(Arc::new(state));
     server.with(RequestIdMiddleware::new());
+    server.with(LogMiddleware::new());
+    server.with(JsonErrorMiddleware::new());
 
     #[cfg(feature = "honeycomb")]
     server.with(TraceMiddleware::new());
-
-    server.with(LogMiddleware::new());
-    server.with(JsonErrorMiddleware::new());
 
     // Postgres
     cfg_if! {
@@ -159,7 +167,7 @@ where
     Ok(server)
 }
 
-pub async fn start_server<State>(server: Server<Arc<State>>) -> SetupResult<()>
+pub async fn start_server<State>(server: Server<Arc<State>>) -> Result<()>
 where
     State: Send + Sync + 'static,
 {

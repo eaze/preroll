@@ -17,13 +17,19 @@ keywords = []
 categories = []
 
 [features]
-all = ["honeycomb", "postgres"]
+test = []
+
+## Add-ons
+all = ["honeycomb", "postgres"] # All add-ons
 
 honeycomb = ["_beeline", "_tracing", "libhoney-rust"]
 _beeline = ["base64", "thiserror"]
 _tracing = ["tracing", "tracing-futures", "tracing-honeycomb", "tracing-subscriber"]
 
 postgres = ["sqlx", "tide-sqlx"]
+
+## Internal features
+panic-on-error = []
 
 [dependencies]
 anyhow = "1.0.35"

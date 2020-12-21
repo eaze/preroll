@@ -8,7 +8,7 @@ use tracing_honeycomb::TraceId;
 
 use super::extension_types::{CorrelationId, RequestId};
 
-/// Log all incoming requests and responses.
+/// Log all outgoing responses.
 #[derive(Debug, Default, Clone)]
 pub struct LogMiddleware {
     _priv: (),
@@ -75,6 +75,12 @@ impl LogMiddleware {
         let start = std::time::Instant::now();
         let res = next.run(req).await;
         let status = res.status();
+
+        #[cfg(feature = "panic-on-error")]
+        #[allow(clippy::unwrap_used)]
+        if let Some(error) = res.error() {
+            Err::<(), &tide::Error>(error).unwrap();
+        }
 
         if let Some(correlation_id) = res.ext::<CorrelationId>() {
             if let Some(error) = res.error() {

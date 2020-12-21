@@ -27,6 +27,11 @@ impl RequestId {
     pub fn as_str(&self) -> &str {
         &self.string_id
     }
+
+    #[cfg(feature = "honeycomb")]
+    pub fn as_u128(&self) -> u128 {
+        self.id.as_u128()
+    }
 }
 
 impl Display for RequestId {
