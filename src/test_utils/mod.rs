@@ -9,8 +9,9 @@ use surf::{Client, StatusCode, Url};
 use tide::Server;
 
 use crate::logging::{log_format_json, log_format_pretty};
-use crate::middleware::json_error::JsonError;
 use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
+
+pub use crate::middleware::json_error::JsonError;
 
 #[cfg(feature = "honeycomb")]
 use tracing_subscriber::Registry;
