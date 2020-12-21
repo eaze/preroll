@@ -47,8 +47,7 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
 
     let log_level: log::LevelFilter;
 
-    // TODO(jeremiah): consider calling this `FORCE_DOTENV`.
-    if env::var("DEBUG_DOTENV").is_ok() {
+    if env::var("FORCE_DOTENV").is_ok() || env::var("DEBUG_DOTENV").is_ok() {
         dotenv::dotenv().ok();
     }
 

@@ -41,8 +41,8 @@
 //!
 //! ## General Envrionment Settings
 //! The following environment variables are read during `preroll::main!`:
-//! - `DEBUG_DOTENV`: Override production-mode, force-load environment from `.env`.
 //! - `ENVIRONMENT`: If this starts with `prod`, load the production-mode JSON logger, avoid `.env`.
+//! - `FORCE_DOTENV`: Override production-mode, force-load environment from `.env`.
 //! - `HOST`: Sets the hostname that this service will listen on. Defaults to `"127.0.0.1"`.
 //! - `LOGLEVEL`: Set the logger's level filter, defaults to `info` in production-mode, `debug` in development-mode.
 //! - `PORT`: Sets the port that this service will listen on. Defaults to `8080`.
