@@ -8,7 +8,7 @@
 //! ## Features
 //!
 //! - Boilerplate `main` setup via `preroll::main!`, with optional features automatically configured.
-//! - A `preoll::prelude::*;` with all extension traits.
+//! - A `preroll::prelude::*;` with all extension traits.
 //! - Response logging with many details.
 //! - Automatic JSON reponses for errors.
 //! - Test utils with easy mock client setup.
@@ -40,7 +40,7 @@
 //! - `"panic-on-error"`: Makes the response logger [panic][] on error rather than log.
 //!     - Do not use in production. Prevents `--release` compilation.
 //!
-//! ## General Envrionment Settings
+//! ## General Environment Settings
 //! The following environment variables are read during `preroll::main!`:
 //! - `ENVIRONMENT`: If this starts with `prod`, load the production-mode JSON logger, avoid `.env`.
 //! - `FORCE_DOTENV`: Override production-mode, force-load environment from `.env`.
