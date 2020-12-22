@@ -107,6 +107,7 @@ where
 ///
 /// [dropped]: https://doc.rust-lang.org/reference/destructors.html
 #[cfg(feature = "postgres")]
+#[cfg_attr(feature = "docs", doc(cfg(feature = "postgres")))]
 pub async fn create_client_and_postgres<State, RoutesFn>(
     state: State,
     setup_routes_fn: RoutesFn,

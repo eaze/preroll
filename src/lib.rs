@@ -34,6 +34,7 @@
 //!         - Defaults to `"postgres://localhost/{service_name}"` (default postgres port).
 //!         - `service_name` is from `preroll::main!("service_name", ...)`.
 //!     - Env variable `PGMAXCONNECTIONS`, default 5 connections.
+//!     - Enables [`PostgresRequestExt`][prelude::PostgresRequestExt] and [`test_utils::create_client_and_postgres`][].
 //!
 //! ### List of other optional features:
 //! - `"panic-on-error"`: Makes the response logger [panic][] on error rather than log.
@@ -88,6 +89,7 @@
     clippy::unseparated_literal_suffix,
     // clippy::used_underscore_binding, // Interferes with SQLx macros
 )]
+#![cfg_attr(feature = "docs", feature(doc_cfg))]
 
 #[cfg(all(not(debug_assertions), feature = "panic-on-error"))]
 compile_error!("The \"panic-on-error\" feature must not be used in production, and is not available with `--release`.");

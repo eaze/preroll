@@ -16,7 +16,12 @@ readme = "README.md"
 keywords = []
 categories = []
 
+[package.metadata.docs.rs]
+features = ["docs"]
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
+docs = ["all"]
 test = []
 
 ## Add-ons
