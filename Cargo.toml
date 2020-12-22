@@ -11,10 +11,13 @@ authors = [
 ]
 edition = "2018"
 license = "BlueOak-1.0.0"
-description = "Name reserved for a crate of prerolled Rust tools."
+description = "Easy boilerplate utilities for Rust http services which use async-std, Tide, Surf, and friends."
 readme = "README.md"
-keywords = []
-categories = []
+repository = "https://github.com/eaze/preroll"
+keywords = ["tide", "surf", "sqlx", "honeycomb"]
+categories = [
+  "web-programming::http-server"
+]
 
 [package.metadata.docs.rs]
 features = ["docs"]
