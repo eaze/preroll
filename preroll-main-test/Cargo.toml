@@ -1,6 +1,6 @@
 [package]
 name = "preroll-main-test"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Jeremiah Senkpiel <fishrock123@rocketmail.com>"]
 edition = "2018"
 
