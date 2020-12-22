@@ -48,6 +48,40 @@
 //! - `LOGLEVEL`: Set the logger's level filter, defaults to `info` in production-mode, `debug` in development-mode.
 //! - `PORT`: Sets the port that this service will listen on. Defaults to `8080`.
 //!
+//! ## Example
+//!
+//! ```no_run
+//! use std::sync::Arc;
+//!
+//! use tide::{Request, Server};
+//!
+//! # #[allow(dead_code)]
+//! struct AppState {
+//!     greeting: &'static str,
+//! }
+//!
+//! # #[allow(dead_code)]
+//! type AppRequest = Request<Arc<AppState>>;
+//!
+//! # #[allow(dead_code)]
+//! async fn setup_app_state() -> preroll::SetupResult<AppState> {
+//!     Ok(AppState {
+//!         greeting: "Hello World!",
+//!     })
+//! }
+//!
+//! # #[allow(dead_code)]
+//! fn setup_routes(server: &mut Server<Arc<AppState>>) {
+//!     server
+//!         .at("hello-world")
+//!         .get(|req: AppRequest| async move {
+//!             Ok(req.state().greeting)
+//!         });
+//! }
+//!
+//! preroll::main!("hello-world", setup_app_state, setup_routes);
+//! ```
+//!
 //! [async-std]: https://async.rs/
 //! [honeycomb.io]: https://www.honeycomb.io/
 //! [SQLx]: https://github.com/launchbadge/sqlx#sqlx
@@ -158,7 +192,7 @@ pub type SetupResult<T> = setup::Result<T>;
 /// type AppRequest = Request<Arc<AppState>>;
 ///
 /// # #[allow(dead_code)]
-/// async fn setup_app_state() -> preroll::setup::Result<AppState> {
+/// async fn setup_app_state() -> preroll::SetupResult<AppState> {
 ///     Ok(AppState {
 ///         greeting: "Hello World!",
 ///     })

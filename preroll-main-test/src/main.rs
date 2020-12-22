@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tide::Server;
 struct AppState {}
 
-async fn setup_app_state() -> preroll::setup::Result<AppState> {
+async fn setup_app_state() -> preroll::SetupResult<AppState> {
     Ok(AppState {})
 }
 
