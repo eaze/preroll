@@ -102,8 +102,8 @@ optional = true
 [dependencies.libhoney-rust]
 version = "0.1.4"
 optional = true
-default-features = false
-features = ["runtime-async-std"]
+# default-features = false
+# features = ["runtime-async-std"]
 
 [dependencies.tracing]
 version = "0.1.22"
@@ -132,9 +132,9 @@ features = ["user-hooks"]
 
 # Dependency overrides
 
-[patch.crates-io.libhoney-rust]
-git = "https://github.com/eaze/libhoney-rust.git"
-branch = "runtime-async-std"
-optional = true
-default-features = false
-features = ["runtime-async-std"]
+# [patch.crates-io.libhoney-rust]
+# git = "https://github.com/eaze/libhoney-rust.git"
+# branch = "runtime-async-std"
+# optional = true
+# default-features = false
+# features = ["runtime-async-std"]
