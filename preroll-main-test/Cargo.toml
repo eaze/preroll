@@ -11,7 +11,7 @@ test = ["preroll/test"]
 
 [dependencies]
 futures-lite = "1.11.2"
-preroll = { path = "../", features = ["panic-on-error"] }
+preroll = { path = "../", features = ["test"] }
 
 [dependencies.tide]
 version = "0.15.0"

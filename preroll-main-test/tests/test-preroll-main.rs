@@ -5,6 +5,7 @@ use async_std::process::{Command, Stdio};
 use async_std::task::{sleep, spawn};
 use futures_lite::future::race;
 use portpicker::pick_unused_port;
+use preroll::test_utils::assert_json_error;
 
 #[async_std::test]
 async fn test_preroll_main() {
@@ -28,6 +29,19 @@ async fn test_preroll_main() {
             let response = surf::get(url).recv_string().await.unwrap();
 
             assert_eq!(response, "preroll successfully set route");
+        }
+
+        {
+            let url = format!("http://127.0.0.1:{}/internal-error", port);
+            let mut response = surf::get(url).await.unwrap();
+
+            assert_json_error(
+                &mut response,
+                500,
+                "Internal Server Error (correlation_id=00000000-0000-0000-0000-000000000000)",
+            )
+            .await
+            .unwrap();
         }
 
         // {

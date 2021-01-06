@@ -1,5 +1,8 @@
 use tide::{Middleware, Next, Request};
 
+#[cfg(feature = "test")]
+use uuid::Uuid;
+
 use super::extension_types::RequestId;
 
 /// Attach a RequestId UUID to every request.
@@ -25,11 +28,16 @@ impl RequestIdMiddleware {
             return Ok(next.run(req).await);
         }
 
-        let request_id;
+        let request_id: RequestId;
+        #[cfg(not(feature = "test"))]
         if let Some(header) = req.header("X-Request-Id") {
             request_id = header.last().as_str().parse()?;
         } else {
             request_id = RequestId::new();
+        }
+        #[cfg(feature = "test")]
+        {
+            request_id = Uuid::nil().into()
         }
 
         req.set_ext(request_id.clone());

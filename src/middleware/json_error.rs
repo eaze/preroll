@@ -5,6 +5,9 @@ use tide::{Body, Middleware, Next, Request, Result};
 #[cfg(feature = "honeycomb")]
 use tracing_honeycomb::TraceId;
 
+#[cfg(feature = "test")]
+use uuid::Uuid;
+
 /// Transfrom Errors (`Result::Err`) into JSON responses.
 ///
 /// Special care is taken when handling non-4XX errors to not expose internal error messages.
@@ -56,7 +59,10 @@ impl JsonErrorMiddleware {
         let status = res.status();
 
         if status.is_server_error() {
+            #[cfg(not(feature = "test"))]
             let correlation_id = CorrelationId::new();
+            #[cfg(feature = "test")]
+            let correlation_id: CorrelationId = Uuid::nil().into();
 
             let body = JsonError {
                 title: status.canonical_reason().to_string(),

@@ -14,14 +14,9 @@ pub struct RequestId {
 
 impl RequestId {
     #[allow(clippy::new_without_default)]
+    #[cfg(not(feature = "test"))]
     pub fn new() -> Self {
-        let uuid = Uuid::new_v4();
-        let buf = &mut [0; 36];
-        let human_id = uuid.to_hyphenated().encode_lower(buf);
-        Self {
-            id: uuid,
-            string_id: human_id.to_string(),
-        }
+        Uuid::new_v4().into()
     }
 
     pub fn as_str(&self) -> &str {
@@ -37,6 +32,17 @@ impl RequestId {
 impl Display for RequestId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.id)
+    }
+}
+
+impl From<Uuid> for RequestId {
+    fn from(uuid: Uuid) -> Self {
+        let buf = &mut [0; 36];
+        let human_id = uuid.to_hyphenated().encode_lower(buf);
+        Self {
+            id: uuid,
+            string_id: human_id.to_string(),
+        }
     }
 }
 
