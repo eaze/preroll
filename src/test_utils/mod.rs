@@ -279,7 +279,14 @@ where
         .try_into()
         .expect("test must specify valid status code");
 
-    let error: JsonError = res.body_json().await?;
+    let str_response = res.body_string().await?;
+
+    let error: JsonError = serde_json::from_str(&str_response).map_err(|e| {
+        surf::Error::from_str(
+            res.status(),
+            format!("Error, could not parse Response into JsonError! json err: \"{}\", response body: \"{}\"", e, str_response)
+        )
+    })?;
 
     assert_eq!(res.status(), status);
     assert_eq!(&error.title, status.canonical_reason());
