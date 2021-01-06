@@ -3,7 +3,7 @@ use kv_log_macro::{error, info, trace, warn};
 use tide::http::headers::{REFERER, USER_AGENT};
 use tide::{Middleware, Next, Request, Result};
 
-#[cfg(features = "honeycomb")]
+#[cfg(feature = "honeycomb")]
 use tracing_honeycomb::TraceId;
 
 use super::extension_types::{CorrelationId, RequestId};
@@ -40,7 +40,7 @@ impl LogMiddleware {
             .clone();
 
         cfg_if! {
-            if #[cfg(features = "honeycomb")] {
+            if #[cfg(feature = "honeycomb")] {
                 let honeycomb_trace_id = req.ext::<TraceId>().cloned();
             } else {
                 let honeycomb_trace_id = Some("disabled");
