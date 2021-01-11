@@ -138,6 +138,9 @@ pub mod prelude;
 pub mod test_utils;
 pub mod utils;
 
+/// The format of error responses from preroll's error handling middleware.
+pub use middleware::json_error::JsonError;
+
 /// The result type which is expected from functions passed to `preroll::main!`.
 ///
 /// This is a `color_eyre::eyre::Result<T>`.

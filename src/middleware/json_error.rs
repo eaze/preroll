@@ -18,14 +18,39 @@ pub struct JsonErrorMiddleware {
 
 struct JsonErrorMiddlewareHasBeenRun;
 
+/// The structure of an error as formatted by preroll's error handling middleware.
+///
+/// A service using preroll will always respond with a JSON body in this format if an internal or client error occurs.
+///
+/// An example of the structure as it would be in JSON:
+/// ```text
+/// {
+///   "status": 422,
+///   "title": "Unprocessable Entity",
+///   "message": "missing field \"address\"",
+///   "request_id": "00000000-0000-0000-0000-000000000000"
+///   "correlation_id": null,
+/// }
+/// ```
 #[derive(Debug, Deserialize, Serialize)]
 pub struct JsonError {
-    pub title: String,
-    pub message: String,
+    /// The http status code. Refer to [httpstatuses.com](https://httpstatuses.com/) for a nice reference.
     pub status: u16,
+    /// The 'canonical reason' of the http status code as specified in [rfc7231 section 6.1](https://tools.ietf.org/html/rfc7231#section-6.1),
+    /// implemented via [`http_types::StatusCode`](https://docs.rs/http-types/2.9.0/http_types/enum.StatusCode.html).
+    pub title: String,
+    /// The origin error message for 4XX client errors.
+    ///
+    /// In case of an 5XX internal server error, this field will be `"Internal Server Error (correlation_id=00000000-0000-0000-0000-000000000000)"`.
+    ///
+    /// If the original error context is missing, this field will be `"(no additional context)"`.
+    pub message: String,
+    /// The UUID v4 assigned to the request, possibly from an incoming header.
     pub request_id: RequestId,
+    /// The service-unique UUID v4 assigned to the error response for 5XX internal server errors.
     pub correlation_id: Option<String>,
     #[cfg(feature = "honeycomb")]
+    /// If the `honeycomb` feature is enabled, this will be the honeycomb trace id associated with this request.
     pub honeycomb_trace_id: Option<String>,
 }
 
