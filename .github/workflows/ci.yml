@@ -25,6 +25,11 @@ jobs:
       run: cargo check --workspace --benches --bins --examples --tests --features=test,all
 
     - name: tests
+      run: cargo test --features=test
+      env:
+        RUST_BACKTRACE: short
+
+    - name: workspace tests
       run: cargo test --workspace --features=test
       env:
         RUST_BACKTRACE: short

@@ -25,12 +25,40 @@ async fn test_preroll_main() {
         sleep(Duration::from_millis(250)).await;
 
         {
-            let url = format!("http://127.0.0.1:{}/test-preroll-setup-routes", port);
+            let url = format!("http://127.0.0.1:{}/api/v1/test-preroll-setup-routes", port);
             let response = surf::get(url).recv_string().await.unwrap();
 
-            assert_eq!(response, "preroll successfully set route");
+            assert_eq!(response, "preroll successfully set route in v1");
         }
 
+        {
+            let url = format!("http://127.0.0.1:{}/api/v1/test-client-error", port);
+            let mut response = surf::get(url).await.unwrap();
+
+            assert_json_error(
+                &mut response,
+                400,
+                "failed with reason: missing field `param`",
+            )
+            .await
+            .unwrap();
+        }
+
+        {
+            let url = format!("http://127.0.0.1:{}/api/v2/test-preroll-setup-routes", port);
+            let response = surf::get(url).recv_string().await.unwrap();
+
+            assert_eq!(response, "preroll successfully set route in v2");
+        }
+
+        {
+            let url = format!("http://127.0.0.1:{}/monitor/ping", port);
+            let response = surf::get(url).recv_string().await.unwrap();
+
+            assert_eq!(response, "preroll-main-test");
+        }
+
+        #[cfg(debug_assertions)]
         {
             let url = format!("http://127.0.0.1:{}/internal-error", port);
             let mut response = surf::get(url).await.unwrap();
@@ -43,13 +71,6 @@ async fn test_preroll_main() {
             .await
             .unwrap();
         }
-
-        // {
-        //     let url = format!("http://127.0.0.1:{}/monitor/ping", port);
-        //     let response = surf::get(url).recv_str().await?;
-        //
-        //     assert_eq!(response, "preroll-main-test")
-        // }
     });
 
     let a = async {

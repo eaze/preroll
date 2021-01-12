@@ -4,11 +4,13 @@
 //! Prefer using `preroll::main!` whenever possible.
 
 use std::env;
+use std::future::Future;
 use std::sync::Arc;
 
 use cfg_if::cfg_if;
+use once_cell::sync::OnceCell;
 use tide::listener::Listener;
-use tide::Server;
+use tide::{Request, Route, Server};
 
 pub use async_std::task::block_on;
 
@@ -40,6 +42,56 @@ use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware}
 ///
 /// This is a `color_eyre::eyre::Result<T>`.
 pub type Result<T> = color_eyre::eyre::Result<T>;
+
+static SERVICE_NAME: OnceCell<&'static str> = OnceCell::new();
+
+pub async fn setup<AppState, StateFn, StateFnFuture, RoutesFn, ServerFn, ServerFnFuture>(
+    service_name: &'static str,
+    state_setup: StateFn,
+    server_setup: ServerFn,
+    routes_setups: &[RoutesFn],
+) -> Result<()>
+where
+    AppState: Send + Sync + 'static,
+    StateFn: Fn() -> StateFnFuture,
+    StateFnFuture: Future<Output = Result<AppState>>,
+    RoutesFn: Fn(Route<'_, Arc<AppState>>),
+    ServerFn: Fn(Server<Arc<AppState>>) -> ServerFnFuture,
+    ServerFnFuture: Future<Output = Result<Server<Arc<AppState>>>>,
+{
+    initial_setup(service_name)?;
+
+    let state = state_setup().await?;
+
+    let (mut base_server, server) = setup_server(service_name, state).await?;
+
+    let mut server = server_setup(server).await?;
+
+    let mut version = 1;
+    for routes_fn in routes_setups {
+        routes_fn(server.at(&format!("/api/v{}", version)));
+        version += 1;
+    }
+
+    #[cfg(debug_assertions)]
+    server.at("/internal-error").get(get_internal_error);
+
+    base_server.at("/").nest(server);
+    start_server(base_server).await?;
+
+    Ok(())
+}
+
+#[cfg(debug_assertions)]
+async fn get_internal_error<AppState>(_req: Request<Arc<AppState>>) -> tide::Result<&'static str>
+where
+    AppState: Send + Sync + 'static,
+{
+    Err(tide::Error::from_str(
+        500,
+        "Intentional Server Error from GET /internal-error",
+    ))
+}
 
 #[cfg_attr(not(feature = "honeycomb"), allow(unused_variables))]
 pub fn initial_setup(service_name: &'static str) -> Result<()> {
@@ -129,10 +181,19 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
 pub async fn setup_server<State>(
     service_name: &'static str,
     state: State,
-) -> Result<Server<Arc<State>>>
+) -> Result<(Server<Arc<()>>, Server<Arc<State>>)>
 where
     State: Send + Sync + 'static,
 {
+    let mut base_server = tide::with_state(Arc::new(()));
+
+    SERVICE_NAME.set(service_name).ok();
+    base_server.at("/monitor/ping").get(|_| async {
+        Ok(*SERVICE_NAME
+            .get()
+            .unwrap_or(&"service name not initialized"))
+    });
+
     let mut server = tide::with_state(Arc::new(state));
     server.with(RequestIdMiddleware::new());
     server.with(LogMiddleware::new());
@@ -163,7 +224,7 @@ where
         }
     }
 
-    Ok(server)
+    Ok((base_server, server))
 }
 
 pub async fn start_server<State>(server: Server<Arc<State>>) -> Result<()>
