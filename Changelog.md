@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2021-01-12
+
+- Changed the api mounting point to be versioned - e.g. `/api/v1`.
+    - This is based on argument position of the route handlers provided to `preroll::main!`.
+- Changed routes setup function to instead receive `Route<'_, Arc<AppState>>`.
+- Added `"test"` feature (makes UUIDs such as `correlation_id` be constant an nil).
+- Added `"custom_middleware"` feature to add an extra hook into `preroll::main!`.
+- Added an always-enabled `GET /monitor/ping` which responds only with `service_name`.
+    - This is excluded from middleware.
+- Added a debug-mode-only `GET /internal-error` for easy testing.
+- Exposed and documented `JsonError`.
+- Improved http error output for `assert_json_error`.
+
 ## [0.1.2] - 2021-01-06
 
 - Fixed `honeycomb` feature. _(Incorrect `cfg` statements.)_
