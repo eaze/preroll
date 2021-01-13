@@ -153,18 +153,18 @@ pub type SetupResult<T> = setup::Result<T>;
 ///
 /// Automatically pulls in setup for preroll's default and optional features.
 ///
-/// This macro takes up to three arguments as follows:
+/// This macro takes the following arguments:
 ///
 /// ## service_name
 /// The constant service name, staticly set in the service's code.
 ///
-/// A **`&'static str`**.
+/// An **`&'static str`**, e.g. `"service-name"`.
 ///
-/// ## (optional) state_setup
+/// ## state_setup (optional)
 /// This is where server state can be set.
 ///
 /// An **`async fn setup_state() -> preroll::setup::Result<AppState>`**, where `AppState` is anything which can be thread-safe.
-/// That is the state must implement `Send + Sync`, (usually automatically), and must have a `'static` liftime (must be owned).
+/// That is the state must implement `Send + Sync`, (usually automatically), and must have a `'static` lifetime (must be owned).
 ///
 /// It is expected that `AppState` is some arbitrary custom type. `preroll` will wrap it in an [`Arc`][] so that is can be shared.
 ///
@@ -173,12 +173,20 @@ pub type SetupResult<T> = setup::Result<T>;
 ///
 /// See [`tide::Server::with_state()`][] from more on Tide server state.
 ///
-/// ## routes_setup
+/// ## routes_setup (one or more)
 /// This is where routes must be set.
 ///
 /// A **`fn setup_routes(server: &mut Server<Arc<AppState>>)`** where `AppState` is the type returned from `setup_state` or else the [unit `()`][] type.
-///
 /// It is expected that only Tide route handlers are set in this function. It must not be async and must not error.
+///
+/// Any number of routes_setup functions can be provided, by adding additional parameters of the same type to the end of the macro invocation.
+///
+/// ### API Versioning
+///
+/// Preroll route setup functions are autmatically namespaces under `/api/v{N}` where the `{N}` is the position of the routes setup function in
+/// `preroll::main!`'s arguments, starting at `1`.
+///
+/// For example, `preroll::main!("my-service", my_routes)` will have `my_routes` mounted at `/api/v1`.
 ///
 /// See [`tide::Server::at()`][] for more on Tide server routing.
 ///
