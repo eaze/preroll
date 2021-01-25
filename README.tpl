@@ -4,6 +4,10 @@
 
 {{readme}}
 
+## API Reference
+
+[API Reference on Docs.rs](https://docs.rs/preroll/0.2.0/preroll/#modules)
+
 ## License
 
 Licensed under the [BlueOak Model License 1.0.0](LICENSE.md) — _[Contributions via DCO 1.1](contributing.md#developers-certificate-of-origin)_

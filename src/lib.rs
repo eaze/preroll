@@ -52,7 +52,7 @@
 //!
 //! ```no_run
 //! # #[cfg(not(feature = "custom_middleware"))]
-//! {
+//! # {
 //! use std::sync::Arc;
 //!
 //! use tide::{Request, Route};

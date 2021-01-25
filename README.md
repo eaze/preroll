@@ -57,7 +57,7 @@ The following environment variables are read during `preroll::main!`:
 ```rust
 use std::sync::Arc;
 
-use tide::{Request, Server};
+use tide::{Request, Route};
 
 struct AppState {
     greeting: &'static str,
@@ -71,7 +71,7 @@ async fn setup_app_state() -> preroll::SetupResult<AppState> {
     })
 }
 
-fn setup_routes(server: &mut Server<Arc<AppState>>) {
+fn setup_routes(mut server: Route<'_, Arc<AppState>>) {
     server
         .at("hello-world")
         .get(|req: AppRequest| async move {
@@ -87,6 +87,10 @@ preroll::main!("hello-world", setup_app_state, setup_routes);
 [SQLx]: https://github.com/launchbadge/sqlx#sqlx
 [Surf]: https://github.com/http-rs/surf#surf
 [Tide]: https://github.com/http-rs/tide#tide
+
+## API Reference
+
+[API Reference on Docs.rs](https://docs.rs/preroll/0.2.0/preroll/#modules)
 
 ## License
 
