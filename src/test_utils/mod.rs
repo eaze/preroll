@@ -8,7 +8,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use cfg_if::cfg_if;
-use surf::{Client, StatusCode, Url};
+use surf::{Client, Response, StatusCode, Url};
 use tide::Server;
 
 use crate::logging::{log_format_json, log_format_pretty};
@@ -188,6 +188,10 @@ where
     server.with(LogMiddleware::new());
     server.with(JsonErrorMiddleware::new());
 
+    server
+        .at("/monitor/ping")
+        .get(|_| async { Ok("preroll_test_utils") });
+
     setup_routes_fn(&mut server);
 
     Ok(server)
@@ -248,32 +252,33 @@ where
 /// A test helper to assert on well structred errors produced by the `JsonErrorMiddleware`.
 ///
 /// ```
-/// // use preroll::test_utils::{self, TestResult};
+/// use preroll::test_utils::{self, assert_json_error, TestResult};
 ///
-/// #[async_std::test]
-/// async fn get_address_by_invalid_id() -> TestResult<()> {
-///     let client = test_utils::create_client((), |_| {}).await?;
+/// #[async_std::main] // Would be #[async_std::test] instead.
+/// async fn main() -> TestResult<()> {
+///     let client = test_utils::create_client((), |_| {}).await.unwrap();
 ///
-///     let mut res = client.get("/not_found").await?;
+///     let mut res = client.get("/not_found").await.unwrap();
 ///
 ///     assert_json_error(
 ///         &mut res,
 ///         404,
-///         "Nopt found",
+///         "(no additional context)",
 ///     )
-///     .await?;
+///     .await
+///     .unwrap();
 ///     Ok(())
 /// }
 /// ```
 #[allow(dead_code)] // Not actually dead code. (??)
-pub async fn assert_json_error<S>(
-    res: &mut surf::Response,
-    status: S,
+pub async fn assert_json_error<Status>(
+    res: &mut Response,
+    status: Status,
     err_msg: &str,
 ) -> TestResult<()>
 where
-    S: TryInto<StatusCode>,
-    S::Error: Debug,
+    Status: TryInto<StatusCode>,
+    Status::Error: Debug,
 {
     let status: StatusCode = status
         .try_into()
@@ -310,4 +315,82 @@ where
     }
 
     Ok(())
+}
+
+/// Assert that a response has a status code and parse out the body to JSON if possible.
+///
+/// This helper has better assertion failure messages than doing this manually.
+///
+/// ```
+/// use preroll::test_utils::{self, assert_status_json, TestResult};
+/// use preroll::JsonError;
+///
+/// #[async_std::main] // Would be #[async_std::test] instead.
+/// async fn main() -> TestResult<()> {
+///     let client = test_utils::create_client((), |_| {}).await.unwrap();
+///
+///     let mut res = client.get("/not_found").await.unwrap();
+///
+///     let json: JsonError = assert_status_json(&mut res, 404).await;
+///     assert_eq!(&json.title, res.status().canonical_reason());
+///
+///     Ok(())
+/// }
+/// ```
+pub async fn assert_status_json<StructType, Status>(
+    res: &mut Response,
+    status: Status,
+) -> StructType
+where
+    StructType: serde::de::DeserializeOwned,
+    Status: TryInto<StatusCode>,
+    Status::Error: Debug,
+{
+    let status: StatusCode = status
+        .try_into()
+        .expect("test must specify valid status code");
+
+    let body = res.body_string().await.unwrap();
+
+    assert_eq!(res.status(), status, "Response body: {}", body);
+
+    serde_json::from_str(&body).unwrap_or_else(|err| {
+        panic!(
+            "Error: \"{}\" Body was not parseable into a {}, body was: \"{}\"",
+            err,
+            std::any::type_name::<StructType>(),
+            body
+        )
+    })
+}
+
+/// Assert that a response has a specified status code.
+///
+/// This helper has better assertion failure messages than doing this manually.
+///
+/// ```
+/// use preroll::test_utils::{self, assert_status, TestResult};
+///
+/// #[async_std::main] // Would be #[async_std::test] instead.
+/// async fn main() -> TestResult<()> {
+///     let client = test_utils::create_client((), |_| {}).await.unwrap();
+///
+///     let mut res = client.get("/monitor/ping").await.unwrap();
+///
+///     assert_status(&mut res, 200).await;
+///     Ok(())
+/// }
+/// ```
+pub async fn assert_status<Status>(res: &mut Response, status: Status)
+where
+    Status: TryInto<StatusCode>,
+    Status::Error: Debug,
+{
+    let status: StatusCode = status
+        .try_into()
+        .expect("test must specify valid status code");
+
+    let body = res.body_string().await.unwrap();
+
+    assert_eq!(res.status(), status, "Response body: {}", body);
 }
