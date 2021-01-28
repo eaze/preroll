@@ -131,6 +131,7 @@
 #[cfg(all(not(debug_assertions), feature = "panic-on-error"))]
 compile_error!("The \"panic-on-error\" feature must not be used in production, and is not available with `--release`.");
 
+pub(crate) mod builtins;
 pub(crate) mod logging;
 pub(crate) mod middleware;
 

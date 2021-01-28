@@ -11,10 +11,10 @@ use cfg_if::cfg_if;
 use surf::{Client, StatusCode, Url};
 use tide::{http, Server};
 
+use crate::builtins::monitor::setup_monitor;
 use crate::logging::{log_format_json, log_format_pretty};
-use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
-
 use crate::middleware::json_error::JsonError;
+use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
 
 #[cfg(feature = "honeycomb")]
 use tracing_subscriber::Registry;
@@ -188,9 +188,7 @@ where
     server.with(LogMiddleware::new());
     server.with(JsonErrorMiddleware::new());
 
-    server
-        .at("/monitor/ping")
-        .get(|_| async { Ok("preroll_test_utils") });
+    setup_monitor("preroll_test_utils", &mut server);
 
     setup_routes_fn(&mut server);
 

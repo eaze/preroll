@@ -57,6 +57,26 @@ async fn test_preroll_main() {
             assert_eq!(response, "preroll-main-test");
         }
 
+        {
+            let url = format!("http://127.0.0.1:{}/monitor/status", port);
+            let response = surf::get(url).recv_string().await.unwrap();
+
+            #[derive(serde::Deserialize)]
+            struct Status {
+                git: String,
+                // hostname: String,
+                service: String,
+                uptime: f64,
+            }
+
+            let status: Status = serde_json::from_str(&response).unwrap();
+
+            assert_eq!(status.git, "No GIT_COMMIT environment variable.");
+            // assert_eq!(status.hostname, "hostname");
+            assert_eq!(status.service, "preroll-main-test");
+            assert!(status.uptime > 0.0);
+        }
+
         #[cfg(debug_assertions)]
         {
             let url = format!("http://127.0.0.1:{}/internal-error", port);

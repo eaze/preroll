@@ -8,11 +8,12 @@ use std::future::Future;
 use std::sync::Arc;
 
 use cfg_if::cfg_if;
-use once_cell::sync::OnceCell;
 use tide::listener::Listener;
 use tide::{Request, Route, Server};
 
 pub use async_std::task::block_on;
+
+use crate::builtins::monitor::setup_monitor;
 
 cfg_if! {
     if #[cfg(feature = "honeycomb")] {
@@ -42,8 +43,6 @@ use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware}
 ///
 /// This is a `color_eyre::eyre::Result<T>`.
 pub type Result<T> = color_eyre::eyre::Result<T>;
-
-static SERVICE_NAME: OnceCell<&'static str> = OnceCell::new();
 
 pub async fn setup<AppState, StateFn, StateFnFuture, RoutesFn, ServerFn, ServerFnFuture>(
     service_name: &'static str,
@@ -187,12 +186,10 @@ where
 {
     let mut base_server = tide::with_state(Arc::new(()));
 
-    SERVICE_NAME.set(service_name).ok();
-    base_server.at("/monitor/ping").get(|_| async {
-        Ok(*SERVICE_NAME
-            .get()
-            .unwrap_or(&"service name not initialized"))
-    });
+    // Set handlers for /monitor/ping, etc.
+    //
+    // These are intentionally excluded from logging/tracing middleware.
+    setup_monitor(service_name, &mut base_server);
 
     let mut server = tide::with_state(Arc::new(state));
     server.with(RequestIdMiddleware::new());
