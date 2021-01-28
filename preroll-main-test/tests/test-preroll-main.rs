@@ -40,8 +40,7 @@ async fn test_preroll_main() {
                 400,
                 "failed with reason: missing field `param`",
             )
-            .await
-            .unwrap();
+            .await;
         }
 
         {
@@ -68,8 +67,7 @@ async fn test_preroll_main() {
                 500,
                 "Internal Server Error (correlation_id=00000000-0000-0000-0000-000000000000)",
             )
-            .await
-            .unwrap();
+            .await;
         }
     });
 

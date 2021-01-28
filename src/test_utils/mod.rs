@@ -265,8 +265,8 @@ where
 ///         404,
 ///         "(no additional context)",
 ///     )
-///     .await
-///     .unwrap();
+///     .await;
+///
 ///     Ok(())
 /// }
 /// ```
@@ -275,8 +275,7 @@ pub async fn assert_json_error<Status>(
     mut res: impl AsMut<http::Response>,
     status: Status,
     err_msg: &str,
-) -> TestResult<()>
-where
+) where
     Status: TryInto<StatusCode>,
     Status::Error: Debug,
 {
@@ -286,14 +285,14 @@ where
         .try_into()
         .expect("test must specify valid status code");
 
-    let str_response = res.body_string().await?;
+    let str_response = res.body_string().await.unwrap();
 
     let error: JsonError = serde_json::from_str(&str_response).map_err(|e| {
         surf::Error::from_str(
             res.status(),
             format!("Error, could not parse Response into JsonError! json err: \"{}\", response body: \"{}\"", e, str_response)
         )
-    })?;
+    }).unwrap();
 
     assert_eq!(res.status(), status);
     assert_eq!(&error.title, status.canonical_reason());
@@ -315,8 +314,6 @@ where
         assert_eq!(error.correlation_id, None);
         assert!(res.header("X-Correlation-Id").is_none());
     }
-
-    Ok(())
 }
 
 /// Assert that a response has a status code and parse out the body to JSON if possible.
