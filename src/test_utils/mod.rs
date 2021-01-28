@@ -8,8 +8,8 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use cfg_if::cfg_if;
-use surf::{Client, Response, StatusCode, Url};
-use tide::Server;
+use surf::{Client, StatusCode, Url};
+use tide::{http, Server};
 
 use crate::logging::{log_format_json, log_format_pretty};
 use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
@@ -272,7 +272,7 @@ where
 /// ```
 #[allow(dead_code)] // Not actually dead code. (??)
 pub async fn assert_json_error<Status>(
-    res: &mut Response,
+    mut res: impl AsMut<http::Response>,
     status: Status,
     err_msg: &str,
 ) -> TestResult<()>
@@ -280,6 +280,8 @@ where
     Status: TryInto<StatusCode>,
     Status::Error: Debug,
 {
+    let res = res.as_mut();
+
     let status: StatusCode = status
         .try_into()
         .expect("test must specify valid status code");
@@ -338,7 +340,7 @@ where
 /// }
 /// ```
 pub async fn assert_status_json<StructType, Status>(
-    res: &mut Response,
+    mut res: impl AsMut<http::Response>,
     status: Status,
 ) -> StructType
 where
@@ -346,6 +348,8 @@ where
     Status: TryInto<StatusCode>,
     Status::Error: Debug,
 {
+    let res = res.as_mut();
+
     let status: StatusCode = status
         .try_into()
         .expect("test must specify valid status code");
@@ -381,11 +385,13 @@ where
 ///     Ok(())
 /// }
 /// ```
-pub async fn assert_status<Status>(res: &mut Response, status: Status)
+pub async fn assert_status<Status>(mut res: impl AsMut<http::Response>, status: Status)
 where
     Status: TryInto<StatusCode>,
     Status::Error: Debug,
 {
+    let res = res.as_mut();
+
     let status: StatusCode = status
         .try_into()
         .expect("test must specify valid status code");
