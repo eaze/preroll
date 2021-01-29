@@ -19,6 +19,10 @@ use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware}
 #[cfg(feature = "honeycomb")]
 use tracing_subscriber::Registry;
 
+mod routes_variadic;
+
+use routes_variadic::VariadicRoutes;
+
 cfg_if! {
     if #[cfg(feature = "postgres")] {
         use async_std::sync::RwLock;
@@ -40,26 +44,32 @@ pub type TestResult<T> = surf::Result<T>;
 ///
 /// ## Example:
 /// ```
-/// // use preroll::test_utils::{self, TestResult};
+/// use preroll::test_utils::{self, assert_status, TestResult};
 ///
-/// #[async_std::test]
-/// async fn example_test() -> TestResult<()> {
-///     let client = test_utils::create_app().await.unwrap();
+/// # #[allow(unused_mut)]
+/// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
+///   // Normally normally imported from your service's crate (lib.rs).
+/// }
 ///
-///     // ... (test cases) ...
+/// #[async_std::main] // Would be #[async_std::test] instead.
+/// async fn main() -> TestResult<()> {
+///     let client = test_utils::create_client((), setup_routes).await.unwrap();
 ///
+///     let mut res = client.get("/monitor/ping").await.unwrap();
+///
+///     let body = assert_status(&mut res, 200).await;
+///     assert_eq!(body, "preroll_test_utils");
 ///     Ok(())
 /// }
 /// ```
-pub async fn create_client<State, RoutesFn>(
+pub async fn create_client<State>(
     state: State,
-    setup_routes_fn: RoutesFn,
+    setup_routes_fns: impl Into<VariadicRoutes<State>>,
 ) -> TestResult<Client>
 where
     State: Send + Sync + 'static,
-    RoutesFn: for<'s> Fn(&'s mut Server<Arc<State>>),
 {
-    let server = create_server(state, setup_routes_fn)?;
+    let server = create_server(state, setup_routes_fns)?;
 
     let mut client = Client::with_http_client(server);
     client.set_base_url(Url::parse("http://localhost:8080")?); // Address not actually used.
@@ -80,11 +90,16 @@ where
 ///
 /// ## Example:
 /// ```
-/// // use preroll::test_utils::{self, TestResult};
+/// use preroll::test_utils::{self, assert_status, TestResult};
 ///
-/// #[async_std::test]
-/// async fn example_test_with_postgres() -> TestResult<()> {
-///     let (client, pg_conn) = test_utils::create_client_and_postgres().await.unwrap();
+/// # #[allow(unused_mut)]
+/// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
+///   // Normally normally imported from your service's crate (lib.rs).
+/// }
+///
+/// #[async_std::main] // Would be #[async_std::test] instead.
+/// async fn main() -> TestResult<()> {
+///     let (client, pg_conn) = test_utils::create_client_and_postgres((), setup_routes).await.unwrap();
 ///
 ///     {
 ///         let mut pg_conn = pg_conn.write().await;
@@ -108,15 +123,14 @@ where
 /// [dropped]: https://doc.rust-lang.org/reference/destructors.html
 #[cfg(feature = "postgres")]
 #[cfg_attr(feature = "docs", doc(cfg(feature = "postgres")))]
-pub async fn create_client_and_postgres<State, RoutesFn>(
+pub async fn create_client_and_postgres<State>(
     state: State,
-    setup_routes_fn: RoutesFn,
+    setup_routes_fns: impl Into<VariadicRoutes<State>>,
 ) -> TestResult<(Client, Arc<RwLock<ConnectionWrapInner<Postgres>>>)>
 where
     State: Send + Sync + 'static,
-    RoutesFn: Fn(&mut Server<Arc<State>>),
 {
-    let mut server = create_server(state, setup_routes_fn)?;
+    let mut server = create_server(state, setup_routes_fns)?;
 
     // Fake PostgresConnectionMiddleware.
     //
@@ -142,13 +156,12 @@ where
     Ok((client, conn_wrap))
 }
 
-pub(crate) fn create_server<State, RoutesFn>(
+pub(crate) fn create_server<State>(
     state: State,
-    setup_routes_fn: RoutesFn,
+    setup_routes_fns: impl Into<VariadicRoutes<State>>,
 ) -> TestResult<Server<Arc<State>>>
 where
     State: Send + Sync + 'static,
-    RoutesFn: Fn(&mut Server<Arc<State>>),
 {
     dotenv::dotenv().ok();
 
@@ -190,7 +203,11 @@ where
 
     setup_monitor("preroll_test_utils", &mut server);
 
-    setup_routes_fn(&mut server);
+    let mut version = 1;
+    for routes_fn in setup_routes_fns.into().routes {
+        routes_fn(server.at(&format!("/api/v{}", version)));
+        version += 1;
+    }
 
     Ok(server)
 }
@@ -252,9 +269,14 @@ where
 /// ```
 /// use preroll::test_utils::{self, assert_json_error, TestResult};
 ///
+/// # #[allow(unused_mut)]
+/// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
+///   // Normally normally imported from your service's crate (lib.rs).
+/// }
+///
 /// #[async_std::main] // Would be #[async_std::test] instead.
 /// async fn main() -> TestResult<()> {
-///     let client = test_utils::create_client((), |_| {}).await.unwrap();
+///     let client = test_utils::create_client((), setup_routes).await.unwrap();
 ///
 ///     let mut res = client.get("/not_found").await.unwrap();
 ///
@@ -322,9 +344,14 @@ pub async fn assert_json_error<Status>(
 /// use preroll::test_utils::{self, assert_status_json, TestResult};
 /// use preroll::JsonError;
 ///
+/// # #[allow(unused_mut)]
+/// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
+///   // Normally normally imported from your service's crate (lib.rs).
+/// }
+///
 /// #[async_std::main] // Would be #[async_std::test] instead.
 /// async fn main() -> TestResult<()> {
-///     let client = test_utils::create_client((), |_| {}).await.unwrap();
+///     let client = test_utils::create_client((), setup_routes).await.unwrap();
 ///
 ///     let mut res = client.get("/not_found").await.unwrap();
 ///
@@ -370,9 +397,14 @@ where
 /// ```
 /// use preroll::test_utils::{self, assert_status, TestResult};
 ///
+/// # #[allow(unused_mut)]
+/// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
+///   // Normally normally imported from your service's crate (lib.rs).
+/// }
+///
 /// #[async_std::main] // Would be #[async_std::test] instead.
 /// async fn main() -> TestResult<()> {
-///     let client = test_utils::create_client((), |_| {}).await.unwrap();
+///     let client = test_utils::create_client((), setup_routes).await.unwrap();
 ///
 ///     let mut res = client.get("/monitor/ping").await.unwrap();
 ///

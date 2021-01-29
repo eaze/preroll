@@ -44,10 +44,10 @@ async fn test_preroll_main() {
         }
 
         {
-            let url = format!("http://127.0.0.1:{}/api/v2/test-preroll-setup-routes", port);
-            let response = surf::get(url).recv_string().await.unwrap();
+            let url = format!("http://127.0.0.1:{}/api/v2/fetch-example", port);
+            let response = surf::get(url).await.unwrap();
 
-            assert_eq!(response, "preroll successfully set route in v2");
+            assert_eq!(response.status(), 301);
         }
 
         {
