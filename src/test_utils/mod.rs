@@ -365,7 +365,7 @@ where
     })
 }
 
-/// Assert that a response has a specified status code.
+/// Assert that a response has a specified status code and return the body as a string.
 ///
 /// This helper has better assertion failure messages than doing this manually.
 ///
@@ -378,11 +378,12 @@ where
 ///
 ///     let mut res = client.get("/monitor/ping").await.unwrap();
 ///
-///     assert_status(&mut res, 200).await;
+///     let body = assert_status(&mut res, 200).await;
+///     assert_eq!(body, "preroll_test_utils");
 ///     Ok(())
 /// }
 /// ```
-pub async fn assert_status<Status>(mut res: impl AsMut<http::Response>, status: Status)
+pub async fn assert_status<Status>(mut res: impl AsMut<http::Response>, status: Status) -> String
 where
     Status: TryInto<StatusCode>,
     Status::Error: Debug,
@@ -396,4 +397,6 @@ where
     let body = res.body_string().await.unwrap();
 
     assert_eq!(res.status(), status, "Response body: {}", body);
+
+    body
 }
