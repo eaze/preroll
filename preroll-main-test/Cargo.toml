@@ -8,7 +8,7 @@ edition = "2018"
 
 [features]
 default = ["test"]
-test = ["preroll/test", "preroll/custom_middleware"]
+test = ["preroll/test"]
 
 [dependencies]
 futures-lite = "1.11.2"

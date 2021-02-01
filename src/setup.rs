@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 use cfg_if::cfg_if;
 use tide::listener::Listener;
-use tide::{Request, Route, Server};
+use tide::{Request, Server};
 
 pub use async_std::task::block_on;
 
@@ -37,6 +37,7 @@ cfg_if! {
 
 use crate::logging::{log_format_json, log_format_pretty};
 use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
+use crate::VariadicRoutes;
 
 /// The result type which is expected from functions passed to `preroll::main!`,
 /// and used in the return of `setup`'s functions.
@@ -44,17 +45,16 @@ use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware}
 /// This is a `color_eyre::eyre::Result<T>`.
 pub type Result<T> = color_eyre::eyre::Result<T>;
 
-pub async fn setup<AppState, StateFn, StateFnFuture, RoutesFn, ServerFn, ServerFnFuture>(
+pub async fn setup<AppState, StateFn, StateFnFuture, ServerFn, ServerFnFuture>(
     service_name: &'static str,
     state_setup: StateFn,
     server_setup: ServerFn,
-    routes_setups: &[RoutesFn],
+    routes_setups: impl Into<VariadicRoutes<AppState>>,
 ) -> Result<()>
 where
     AppState: Send + Sync + 'static,
     StateFn: Fn() -> StateFnFuture,
     StateFnFuture: Future<Output = Result<AppState>>,
-    RoutesFn: Fn(Route<'_, Arc<AppState>>),
     ServerFn: Fn(Server<Arc<AppState>>) -> ServerFnFuture,
     ServerFnFuture: Future<Output = Result<Server<Arc<AppState>>>>,
 {
@@ -67,7 +67,7 @@ where
     let mut server = server_setup(server).await?;
 
     let mut version = 1;
-    for routes_fn in routes_setups {
+    for routes_fn in routes_setups.into().routes {
         routes_fn(server.at(&format!("/api/v{}", version)));
         version += 1;
     }

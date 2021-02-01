@@ -15,13 +15,10 @@ use crate::builtins::monitor::setup_monitor;
 use crate::logging::{log_format_json, log_format_pretty};
 use crate::middleware::json_error::JsonError;
 use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
+use crate::VariadicRoutes;
 
 #[cfg(feature = "honeycomb")]
 use tracing_subscriber::Registry;
-
-mod routes_variadic;
-
-use routes_variadic::VariadicRoutes;
 
 cfg_if! {
     if #[cfg(feature = "postgres")] {

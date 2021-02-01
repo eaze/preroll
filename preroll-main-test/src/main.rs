@@ -6,8 +6,7 @@ preroll::main!(
     "preroll-main-test",
     setup_app_state,
     setup_custom,
-    setup_routes_v1,
-    setup_routes_v2
+    (setup_routes_v1, setup_routes_v2)
 );
 
 pub async fn setup_app_state() -> preroll::SetupResult<AppState> {

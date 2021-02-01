@@ -3,7 +3,7 @@ use preroll::test_utils::assert_json_error;
 mod test_utils;
 
 #[async_std::test]
-async fn test_preroll_main() {
+async fn test_preroll_main_test_utils() {
     let client = test_utils::create_client().await.unwrap();
 
     {

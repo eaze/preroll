@@ -8,7 +8,7 @@ use portpicker::pick_unused_port;
 use preroll::test_utils::assert_json_error;
 
 #[async_std::test]
-async fn test_preroll_main() {
+async fn test_preroll_main_networked() {
     let cargo_bin_path = cargo_bin("preroll-main-test");
     let port = pick_unused_port().unwrap_or(8080).to_string();
 

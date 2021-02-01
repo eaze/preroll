@@ -131,6 +131,8 @@
 #[cfg(all(not(debug_assertions), feature = "panic-on-error"))]
 compile_error!("The \"panic-on-error\" feature must not be used in production, and is not available with `--release`.");
 
+mod routes_variadic;
+
 pub(crate) mod builtins;
 pub(crate) mod logging;
 pub(crate) mod middleware;
@@ -149,6 +151,9 @@ pub use middleware::json_error::JsonError;
 ///
 /// This is a `color_eyre::eyre::Result<T>`.
 pub type SetupResult<T> = setup::Result<T>;
+
+/// Variadic-argument route versioning is implemented by this trait for Single-argument, Tuple, and Vec types.
+pub use routes_variadic::VariadicRoutes;
 
 /// A macro which constructs the equivalent of an `async fn main()`.
 ///
@@ -191,7 +196,9 @@ pub type SetupResult<T> = setup::Result<T>;
 ///
 /// See [`tide::Server::at()`][] for more on Tide server routing.
 ///
-/// ## Example
+/// ## Basic Example
+///
+/// This will respond with `"Hello World!"` when a GET request is made to `$HOST:$PORT/api/v1/hello-world`.
 ///
 /// ```no_run
 /// # #[cfg(not(feature = "custom_middleware"))]
@@ -228,49 +235,92 @@ pub type SetupResult<T> = setup::Result<T>;
 /// # }
 /// ```
 ///
+/// ## Full Example
+/// With custom middleware and multiple api versions.
+///
+/// ```no_run
+/// # #[cfg(not(feature = "custom_middleware"))]
+/// # {
+/// use std::sync::Arc;
+///
+/// use preroll::SetupResult;
+/// use tide::{Request, Route, Server};
+///
+/// # #[allow(dead_code)]
+/// pub struct AppState {
+///     greeting: &'static str,
+/// }
+///
+/// # #[allow(dead_code)]
+/// type AppRequest = Request<Arc<AppState>>;
+///
+/// # #[allow(dead_code)]
+/// async fn setup_app_state() -> preroll::SetupResult<AppState> {
+///     Ok(AppState {
+///         greeting: "Hello World!",
+///     })
+/// }
+///
+/// # #[allow(dead_code)]
+/// pub async fn setup_custom(server: Server<Arc<AppState>>) -> SetupResult<Server<Arc<AppState>>> {
+///    // Adjust `server` in whichever ways neccessary
+///    Ok(server)
+/// }
+///
+/// # #[allow(dead_code)]
+/// fn setup_routes_v1(mut server: Route<'_, Arc<AppState>>) {
+///     server
+///         .at("hello-world")
+///         .get(|req: AppRequest| async move {
+///             Ok(req.state().greeting)
+///         });
+/// }
+///
+/// # #[allow(dead_code)]
+/// fn setup_routes_v2(mut server: Route<'_, Arc<AppState>>) {
+///     server
+///         .at("hello-world")
+///         .get(|req: AppRequest| async move {
+///             Ok("Hello from v2!")
+///         });
+/// }
+///
+/// preroll::main!("hello-world", setup_app_state, setup_custom, (setup_routes_v1, setup_routes_v2));
+/// # }
+/// ```
+///
 /// [`tide::Server::at()`]: https://docs.rs/tide/0.15.0/tide/struct.Server.html#method.at
 /// [`tide::Server::with_state()`]: https://docs.rs/tide/0.15.0/tide/struct.Server.html#method.with_state
 /// [unit `()`]: https://doc.rust-lang.org/std/primitive.unit.html
 /// [`Arc`]: https://doc.rust-lang.org/std/sync/struct.Arc.html
-#[cfg(not(feature = "custom_middleware"))]
 #[macro_export]
 macro_rules! main {
     // preroll::main!("service-name", routes_setup_function);
-    ($service_name:tt, $routes_setup:tt) => {
-        $crate::main!($service_name, (), async { Ok(()) }, routes_setup);
+    ($service_name:tt, $routes_fns:tt) => {
+        $crate::main!($service_name, async { Ok(()) }, routes_fns);
     };
 
     // preroll::main!("service-name", state_setup_function, routes_setup_function);
-    ($service_name:tt, $state_setup:tt, $($routes_fns:tt)*) => {
-        fn main() -> preroll::setup::Result<()> {
-            preroll::setup::block_on(async {
-                preroll::setup::setup(
-                    $service_name,
-                    $state_setup,
-                    |server| async { Ok(server) },
-                    &[$($routes_fns)*],
-                )
-                .await
-            })
+    ($service_name:tt, $state_setup:tt, $routes_fns:tt) => {
+        async fn setup_noop<State>(
+            server: tide::Server<std::sync::Arc<State>>,
+        ) -> preroll::SetupResult<tide::Server<std::sync::Arc<State>>>
+        where
+            State: Send + Sync + 'static,
+        {
+            Ok(server)
         }
-    };
-}
 
-#[cfg(feature = "custom_middleware")]
-#[macro_export]
-macro_rules! main {
-    // preroll::main!("service-name", state_setup_function, server_setup_function, routes_setup_function);
-    ($service_name:tt, $state_setup:tt, $server_setup:tt, $($routes_fns:tt),+) => {
+        $crate::main!($service_name, $state_setup, setup_noop, $routes_fns);
+    };
+
+    // preroll::main!("service-name", state_setup_function, server_setup_function, routes_setup_function(s));
+    ($service_name:tt, $state_setup:tt, $server_setup:tt, $routes_fns:tt) => {
         fn main() -> preroll::setup::Result<()> {
-            preroll::setup::block_on(async {
-                preroll::setup::setup(
-                    $service_name,
-                    $state_setup,
-                    $server_setup,
-                    &[$($routes_fns),*][..],
-                )
-                .await
-            })
+            let fut =
+                preroll::setup::setup($service_name, $state_setup, $server_setup, $routes_fns);
+
+            preroll::setup::block_on(fut)
         }
     };
 }
