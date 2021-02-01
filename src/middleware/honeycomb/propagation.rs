@@ -156,13 +156,13 @@ mod tests {
         };
         assert_eq!(
             p.marshal_trace_context(),
-            "1;trace_id=abcdef123456,parent_id=0102030405,context=eyJlcnJvck1zZyI6ImZhaWxlZCB0byBzaWduIG9uIiwidG9SZXRyeSI6dHJ1ZSwidXNlcklEIjoxfQ=="
+            "1;trace_id=abcdef123456,parent_id=0102030405,context=eyJ1c2VySUQiOjEsImVycm9yTXNnIjoiZmFpbGVkIHRvIHNpZ24gb24iLCJ0b1JldHJ5Ijp0cnVlfQ=="
         );
 
         p.dataset = "dada".to_string();
         assert_eq!(
             p.marshal_trace_context(),
-            "1;trace_id=abcdef123456,parent_id=0102030405,dataset=dada,context=eyJlcnJvck1zZyI6ImZhaWxlZCB0byBzaWduIG9uIiwidG9SZXRyeSI6dHJ1ZSwidXNlcklEIjoxfQ=="
+            "1;trace_id=abcdef123456,parent_id=0102030405,dataset=dada,context=eyJ1c2VySUQiOjEsImVycm9yTXNnIjoiZmFpbGVkIHRvIHNpZ24gb24iLCJ0b1JldHJ5Ijp0cnVlfQ=="
         );
     }
 
