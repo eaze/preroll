@@ -22,7 +22,7 @@ jobs:
     - uses: actions/checkout@master
 
     - name: check
-      run: cargo check --workspace --benches --bins --examples --tests --features=test,all
+      run: cargo check --workspace --all-targets --features=test,all
 
     - name: tests
       run: cargo test --features=test
@@ -45,7 +45,7 @@ jobs:
       run: rustup toolchain install nightly
 
     - name: clippy
-      run: cargo clippy --workspace --benches --bins --examples --tests --features=test,all
+      run: cargo clippy --workspace --all-targets --features=test,all
 
     - name: fmt
       run: cargo fmt --all -- --check
