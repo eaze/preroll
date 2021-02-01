@@ -86,8 +86,8 @@ where
 /// the test cases, or else there will be a writer conflict and the test will hang indefinitely.
 ///
 /// ## Example:
-/// ```
-/// use preroll::test_utils::{self, assert_status, TestResult};
+/// ```no_run
+/// use preroll::test_utils::{self, TestResult};
 ///
 /// # #[allow(unused_mut)]
 /// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
@@ -99,6 +99,7 @@ where
 ///     let (client, pg_conn) = test_utils::create_client_and_postgres((), setup_routes).await.unwrap();
 ///
 ///     {
+/// #       #[allow(unused_mut)]
 ///         let mut pg_conn = pg_conn.write().await;
 ///
 ///         // ... (test setup) ...
