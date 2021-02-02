@@ -202,25 +202,24 @@ where
     server.with(TraceMiddleware::new());
 
     // Postgres
-    cfg_if! {
-        if #[cfg(feature = "postgres")] {
-            let max_connections: u32 = env::var("PGMAXCONNECTIONS")
-                .map(|v| v.parse())
-                .unwrap_or(Ok(5))?;
+    #[cfg(feature = "postgres")]
+    {
+        let max_connections: u32 = env::var("PGMAXCONNECTIONS")
+            .map(|v| v.parse())
+            .unwrap_or(Ok(5))?;
 
-            let pgurl =
-                env::var("PGURL").unwrap_or_else(|_| format!("postgres://localhost/{}", service_name));
+        let pgurl =
+            env::var("PGURL").unwrap_or_else(|_| format!("postgres://localhost/{}", service_name));
 
-            let mut connect_opts: PgConnectOptions = pgurl.parse()?;
-            connect_opts.log_statements(log::LevelFilter::Debug);
+        let mut connect_opts: PgConnectOptions = pgurl.parse()?;
+        connect_opts.log_statements(log::LevelFilter::Debug);
 
-            let pg_pool = PgPoolOptions::new()
-                .max_connections(max_connections)
-                .connect_with(connect_opts)
-                .await?;
+        let pg_pool = PgPoolOptions::new()
+            .max_connections(max_connections)
+            .connect_with(connect_opts)
+            .await?;
 
-            server.with(PostgresMiddleware::from(pg_pool));
-        }
+        server.with(PostgresMiddleware::from(pg_pool));
     }
 
     Ok((base_server, server))

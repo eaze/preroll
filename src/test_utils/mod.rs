@@ -212,12 +212,11 @@ where
             .ok();
     }
 
-    cfg_if! {
-        if #[cfg(feature = "honeycomb")] {
-            let subscriber = Registry::default();
-            // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
-            tracing::subscriber::set_global_default(subscriber).ok();
-        }
+    #[cfg(feature = "honeycomb")]
+    {
+        let subscriber = Registry::default();
+        // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
+        tracing::subscriber::set_global_default(subscriber).ok();
     }
 
     let mut server = tide::with_state(Arc::new(state));
@@ -236,19 +235,17 @@ where
     Ok(server)
 }
 
-cfg_if! {
-    if #[cfg(feature = "postgres")] {
-        #[cfg_attr(feature = "docs", doc(cfg(feature = "postgres")))]
-        #[derive(Debug, Clone)]
-        struct PostgresTestMiddleware(ConnectionWrap<Postgres>);
+#[cfg(feature = "postgres")]
+#[cfg_attr(feature = "docs", doc(cfg(feature = "postgres")))]
+#[derive(Debug, Clone)]
+struct PostgresTestMiddleware(ConnectionWrap<Postgres>);
 
-        #[tide::utils::async_trait]
-        impl<State: Clone + Send + Sync + 'static> Middleware<State> for PostgresTestMiddleware {
-            async fn handle(&self, mut req: Request<State>, next: Next<'_, State>) -> tide::Result {
-                req.set_ext(self.0.clone());
-                Ok(next.run(req).await)
-            }
-        }
+#[cfg(feature = "postgres")]
+#[tide::utils::async_trait]
+impl<State: Clone + Send + Sync + 'static> Middleware<State> for PostgresTestMiddleware {
+    async fn handle(&self, mut req: Request<State>, next: Next<'_, State>) -> tide::Result {
+        req.set_ext(self.0.clone());
+        Ok(next.run(req).await)
     }
 }
 
