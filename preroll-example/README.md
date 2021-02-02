@@ -8,4 +8,4 @@ A working example service built with preroll with tests that use [`preroll::test
   - Sets up the service's routes and mocks out any external client APIs.
 - `tests/integration.rs`: Tests for the example service's `lib.rs`.
 
-[`preroll::test_utils`]: https://docs.rs/preroll/0.2.0/preroll/test_utils/index.html
+[`preroll::test_utils`]: https://docs.rs/preroll/0.3.0/preroll/test_utils/index.html

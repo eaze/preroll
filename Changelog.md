@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2021-02-01
+
+- Removed the `"custom_middleware"` feature, is now automatically part of the optional arguments for `preroll::main!`.
+- Changed `preroll::main!` to accept `VariadicRoutes` instead of variable macro arguments.
+- Changed `preroll::test_utils::create_client` to accept `VariadicRoutes`, enabled api versioned testing.
+- Changed assertions to always unwrap and panic immediately rather than return a `Result`.
+- Changed assertions to accept `AsMut<http_types::Response>` rather than `surf::Response`.
+- Added more test assertion helpers to `preroll::test_utils`.
+- Added `/monitor/status` built-in endpoint to expose useful status information.
+- Updated all documentation with major additions, overhauls, and examples.
+- Improved the standalone example / test subproject.
+- Improved internal CI.
+
 ## [0.2.0] - 2021-01-12
 
 - Changed the api mounting point to be versioned - e.g. `/api/v1`.

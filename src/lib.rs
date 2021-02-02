@@ -88,14 +88,14 @@
 //! This crate is intentionally somewhat prescriptive in how it templates a service and the interaction with
 //! add-on features such as Postgres (via [SQLx][]).
 //!
-//! [`preroll::main!`]: https://docs.rs/preroll/0.2.0/preroll/macro.main.html
-//! [`preroll::prelude::*;`]: https://docs.rs/preroll/0.2.0/preroll/prelude/index.html
-//! [`JsonError`]: https://docs.rs/preroll/0.2.0/preroll/struct.JsonError.html
+//! [`preroll::main!`]: https://docs.rs/preroll/0.3.0/preroll/macro.main.html
+//! [`preroll::prelude::*;`]: https://docs.rs/preroll/0.3.0/preroll/prelude/index.html
+//! [`JsonError`]: https://docs.rs/preroll/0.3.0/preroll/struct.JsonError.html
 //! [async-std]: https://async.rs/
 //! [honeycomb.io]: https://www.honeycomb.io/
 //! [SQLx]: https://github.com/launchbadge/sqlx#sqlx
 //! [Surf]: https://github.com/http-rs/surf#surf
-//! [Test utils]: https://docs.rs/preroll/0.2.0/preroll/test_utils/index.html
+//! [Test utils]: https://docs.rs/preroll/0.3.0/preroll/test_utils/index.html
 //! [Tide]: https://github.com/http-rs/tide#tide
 
 #![forbid(unsafe_code, future_incompatible)]
