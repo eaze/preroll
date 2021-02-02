@@ -6,7 +6,7 @@
 
 ## API Reference
 
-[API Reference on Docs.rs](https://docs.rs/preroll/0.3.0/preroll/#modules)
+[API Reference on Docs.rs](https://docs.rs/preroll/0.4.0/preroll/#modules)
 
 ## License
 
