@@ -2,6 +2,8 @@ use preroll::test_utils::assert_json_error;
 
 mod test_utils;
 
+// This is how it is suggested to write unit-integration tests with preroll.
+
 #[async_std::test]
 async fn test_preroll_main_test_utils() {
     let client = test_utils::create_client().await.unwrap();
@@ -37,7 +39,7 @@ async fn test_preroll_main_test_utils() {
     // {
     //     let response = client.get("/monitor/ping").recv_string().await.unwrap();
 
-    //     assert_eq!(response, "preroll-main-test");
+    //     assert_eq!(response, "preroll-example");
     // }
 
     // TODO(Jeremiah): Should tests also have this?

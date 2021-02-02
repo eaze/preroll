@@ -50,6 +50,7 @@ pub struct JsonError {
     /// The service-unique UUID v4 assigned to the error response for 5XX internal server errors.
     pub correlation_id: Option<String>,
     #[cfg(feature = "honeycomb")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "honeycomb")))]
     /// If the `honeycomb` feature is enabled, this will be the honeycomb trace id associated with this request.
     pub honeycomb_trace_id: Option<String>,
 }

@@ -24,6 +24,7 @@ impl RequestId {
     }
 
     #[cfg(feature = "honeycomb")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "honeycomb")))]
     pub fn as_u128(&self) -> u128 {
         self.id.as_u128()
     }

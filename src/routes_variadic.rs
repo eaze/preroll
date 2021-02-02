@@ -4,6 +4,26 @@ use std::sync::Arc;
 
 use tide::Route;
 
+/// [Variadic-argument][] route versioning is implemented via this struct for [`From<T>`][] with Single-argument, Tuple, and Vec types.
+///
+/// This allows [`preroll::main!`][crate::main!] and [`preroll::test_utils::create_client`][crate::test_utils::create_client] to version routes automatically based on their position in the arguments list.
+///
+/// Examples of what can be provided to any function that accepts `impl Into<VariadicRoutes>`, assuming all arguments are `Fn(Route<'r, Arc<State>>)`:
+/// - A single routes function argument.
+///     - Will become `/api/v1`.
+///     - E.g. `routes_v1` or `routes_setup`.
+/// - A [Tuple][] of 1 to 4 routes functions.
+///     - Will become `/api/v1` through `/api/v4`.
+///     - E.g. `(routes_v1, routes_v2, routes_v3)`
+/// - A [Vec][] of boxed routes functions.
+///     - If you need this you may want to reconsider your architecture!
+///     - Will become `/api/v{N}` where N is the index + 1.
+///     - E.g. `vec![Box::new(routes_v1), Box::new(routes_v2)]`
+///
+/// [`From<T>`]: https://doc.rust-lang.org/std/convert/trait.From.html
+/// [Tuple]: https://doc.rust-lang.org/std/primitive.tuple.html
+/// [Variadic-argument]: https://en.wikipedia.org/wiki/Variadic_function
+/// [Vec]: https://doc.rust-lang.org/std/vec/struct.Vec.html
 #[allow(clippy::type_complexity)]
 #[allow(missing_debug_implementations)]
 pub struct VariadicRoutes<State>

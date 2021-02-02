@@ -4,25 +4,56 @@
 
 Easy boilerplate utilities for Rust http services which use [async-std][], [Tide][], [Surf][], and friends.
 
-This crate is intentionally somewhat prescrptive in how it templates a service and the interaction with
-add-on features such as Postgres (via [SQLx][]).
+Allows for service setup with feature-configured builtins for maximum service consistency with low developer overhead,
+and for easily integration testing the service without using a live network.
 
 **Scroll to the bottom for API Reference**
 
+### Example
+
+```rust
+use std::sync::Arc;
+
+use tide::{Request, Route};
+
+struct AppState {
+    greeting: &'static str,
+}
+
+type AppRequest = Request<Arc<AppState>>;
+
+async fn setup_app_state() -> preroll::SetupResult<AppState> {
+    Ok(AppState {
+        greeting: "Hello World!",
+    })
+}
+
+fn setup_routes(mut server: Route<'_, Arc<AppState>>) {
+    server
+        .at("hello-world")
+        .get(|req: AppRequest| async move {
+            Ok(req.state().greeting)
+        });
+}
+
+// The "magic" happens here!
+preroll::main!("hello-world", setup_app_state, setup_routes);
+```
+
 ### Features
 
-- Boilerplate `main` setup via `preroll::main!`, with optional features automatically configured.
-- A `preroll::prelude::*;` with all extension traits.
+- Boilerplate `main` setup via [`preroll::main!`][], with optional features automatically configured.
+- A [`preroll::prelude::*;`][] with all extension traits.
 - Response logging with many details.
-- Automatic JSON reponses for errors.
-- Test utils with easy mock client setup.
+- Automatic JSON reponses for errors in the form of [`JsonError`][].
+- [Test utils][] with easy mock client setup.
 
 ### Optional features
 Add-on features must be enabled via cargo features, e.g.
 
 ```toml
 [dependencies.preroll]
-version = "0.1"
+version = "0.2"
 features = ["honeycomb", "postgres"]
 ```
 
@@ -52,40 +83,19 @@ The following environment variables are read during `preroll::main!`:
 - `LOGLEVEL`: Set the logger's level filter, defaults to `info` in production-mode, `debug` in development-mode.
 - `PORT`: Sets the port that this service will listen on. Defaults to `8080`.
 
-### Example
+### Note:
 
-```rust
-use std::sync::Arc;
+This crate is intentionally somewhat prescriptive in how it templates a service and the interaction with
+add-on features such as Postgres (via [SQLx][]).
 
-use tide::{Request, Route};
-
-struct AppState {
-    greeting: &'static str,
-}
-
-type AppRequest = Request<Arc<AppState>>;
-
-async fn setup_app_state() -> preroll::SetupResult<AppState> {
-    Ok(AppState {
-        greeting: "Hello World!",
-    })
-}
-
-fn setup_routes(mut server: Route<'_, Arc<AppState>>) {
-    server
-        .at("hello-world")
-        .get(|req: AppRequest| async move {
-            Ok(req.state().greeting)
-        });
-}
-
-preroll::main!("hello-world", setup_app_state, setup_routes);
-```
-
+[`preroll::main!`]: https://docs.rs/preroll/0.2.0/preroll/macro.main.html
+[`preroll::prelude::*;`]: https://docs.rs/preroll/0.2.0/preroll/prelude/index.html
+[`JsonError`]: https://docs.rs/preroll/0.2.0/preroll/struct.JsonError.html
 [async-std]: https://async.rs/
 [honeycomb.io]: https://www.honeycomb.io/
 [SQLx]: https://github.com/launchbadge/sqlx#sqlx
 [Surf]: https://github.com/http-rs/surf#surf
+[Test utils]: https://docs.rs/preroll/0.2.0/preroll/test_utils/index.html
 [Tide]: https://github.com/http-rs/tide#tide
 
 ## API Reference

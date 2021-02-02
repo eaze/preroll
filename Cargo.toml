@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "preroll-main-test",
+    "preroll-example",
 ]
 
 [package]

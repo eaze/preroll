@@ -1,4 +1,28 @@
-//! Utilities for setting up mock clients and test servers with similar features to `preroll::main!`
+//! Utilities for setting up mock clients and test servers with similar features to `preroll::main!`.
+//!
+//! See [**preroll-example** on GitHub](https://github.com/eaze/preroll/tree/latest/preroll-example) for a full example of how to integrate test_utils for a service.
+//!
+//! ## Example:
+//!
+//! ```
+//! use preroll::test_utils::{self, assert_status, TestResult};
+//!
+//! # #[allow(unused_mut)]
+//! pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
+//!   // Normally imported from your service's crate (lib.rs).
+//! }
+//!
+//! #[async_std::main] // Would be #[async_std::test] instead.
+//! async fn main() -> TestResult<()> {
+//!     let client = test_utils::create_client((), setup_routes).await.unwrap();
+//!
+//!     let mut res = client.get("/monitor/ping").await.unwrap();
+//!
+//!     let body = assert_status(&mut res, 200).await;
+//!     assert_eq!(body, "preroll_test_utils");
+//!     Ok(())
+//! }
+//! ```
 
 #![allow(clippy::unwrap_used)]
 
@@ -40,12 +64,13 @@ pub type TestResult<T> = surf::Result<T>;
 /// and hands back a client which is already connected to the server.
 ///
 /// ## Example:
+///
 /// ```
 /// use preroll::test_utils::{self, assert_status, TestResult};
 ///
 /// # #[allow(unused_mut)]
 /// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
-///   // Normally normally imported from your service's crate (lib.rs).
+///   // Normally imported from your service's crate (lib.rs).
 /// }
 ///
 /// #[async_std::main] // Would be #[async_std::test] instead.
@@ -86,12 +111,13 @@ where
 /// the test cases, or else there will be a writer conflict and the test will hang indefinitely.
 ///
 /// ## Example:
+///
 /// ```no_run
 /// use preroll::test_utils::{self, TestResult};
 ///
 /// # #[allow(unused_mut)]
 /// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
-///   // Normally normally imported from your service's crate (lib.rs).
+///   // Normally imported from your service's crate (lib.rs).
 /// }
 ///
 /// #[async_std::main] // Would be #[async_std::test] instead.
@@ -212,6 +238,7 @@ where
 
 cfg_if! {
     if #[cfg(feature = "postgres")] {
+        #[cfg_attr(feature = "docs", doc(cfg(feature = "postgres")))]
         #[derive(Debug, Clone)]
         struct PostgresTestMiddleware(ConnectionWrap<Postgres>);
 
@@ -262,14 +289,16 @@ where
     mock_client
 }
 
-/// A test helper to assert on well structred errors produced by the `JsonErrorMiddleware`.
+/// A test helper to check all fields of a [`JsonError`][crate::JsonError].
+///
+/// ## Example:
 ///
 /// ```
 /// use preroll::test_utils::{self, assert_json_error, TestResult};
 ///
 /// # #[allow(unused_mut)]
 /// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
-///   // Normally normally imported from your service's crate (lib.rs).
+///     // Normally imported from your service's crate (lib.rs).
 /// }
 ///
 /// #[async_std::main] // Would be #[async_std::test] instead.
@@ -338,13 +367,15 @@ pub async fn assert_json_error<Status>(
 ///
 /// This helper has better assertion failure messages than doing this manually.
 ///
+/// ## Example:
+///
 /// ```
 /// use preroll::test_utils::{self, assert_status_json, TestResult};
 /// use preroll::JsonError;
 ///
 /// # #[allow(unused_mut)]
 /// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
-///   // Normally normally imported from your service's crate (lib.rs).
+///   // Normally imported from your service's crate (lib.rs).
 /// }
 ///
 /// #[async_std::main] // Would be #[async_std::test] instead.
@@ -392,12 +423,14 @@ where
 ///
 /// This helper has better assertion failure messages than doing this manually.
 ///
+/// ## Example:
+///
 /// ```
 /// use preroll::test_utils::{self, assert_status, TestResult};
 ///
 /// # #[allow(unused_mut)]
 /// pub fn setup_routes(mut server: tide::Route<'_, std::sync::Arc<()>>) {
-///   // Normally normally imported from your service's crate (lib.rs).
+///   // Normally imported from your service's crate (lib.rs).
 /// }
 ///
 /// #[async_std::main] // Would be #[async_std::test] instead.

@@ -7,9 +7,13 @@ use futures_lite::future::race;
 use portpicker::pick_unused_port;
 use preroll::test_utils::assert_json_error;
 
+// Actual testing for preroll itself.
+// It is not reccomended to do this in your preroll projects.
+// See tests/integration.rs
+
 #[async_std::test]
 async fn test_preroll_main_networked() {
-    let cargo_bin_path = cargo_bin("preroll-main-test");
+    let cargo_bin_path = cargo_bin("preroll-example");
     let port = pick_unused_port().unwrap_or(8080).to_string();
 
     let mut server_proc = Command::new(cargo_bin_path)
@@ -54,7 +58,7 @@ async fn test_preroll_main_networked() {
             let url = format!("http://127.0.0.1:{}/monitor/ping", port);
             let response = surf::get(url).recv_string().await.unwrap();
 
-            assert_eq!(response, "preroll-main-test");
+            assert_eq!(response, "preroll-example");
         }
 
         {
@@ -73,7 +77,7 @@ async fn test_preroll_main_networked() {
 
             assert_eq!(status.git, "No GIT_COMMIT environment variable.");
             // assert_eq!(status.hostname, "hostname");
-            assert_eq!(status.service, "preroll-main-test");
+            assert_eq!(status.service, "preroll-example");
             assert!(status.uptime > 0.0);
         }
 
