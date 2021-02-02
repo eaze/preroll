@@ -25,7 +25,7 @@ default-features = false
 features = ["curl-client", "encoding"]
 
 [dependencies.tide]
-version = "0.15.0"
+version = "0.16.0"
 default-features = false
 features = ["h1-server"]
 
