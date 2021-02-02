@@ -133,43 +133,45 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
     log::info!("Logger started - level: {}", log_level);
 
     // Tracing (Honeycomb)
-    cfg_if! {
-        if #[cfg(feature = "honeycomb")] {
-            let trace_filter: LevelFilter = env::var("TRACELEVEL")
-                .map(|v| v.parse())
-                .unwrap_or(Ok(LevelFilter::INFO))?;
+    #[cfg(feature = "honeycomb")]
+    {
+        let trace_filter: LevelFilter = env::var("TRACELEVEL")
+            .map(|v| v.parse())
+            .unwrap_or(Ok(LevelFilter::INFO))?;
 
-            if let Ok(honeycomb_key) = env::var("HONEYCOMBIO_WRITE_KEY") {
-                let honeycomb_config = libhoney::Config {
-                    options: libhoney::client::Options {
-                        api_key: honeycomb_key,
-                        dataset: format!("{}-{}", service_name, environment),
-                        ..libhoney::client::Options::default()
-                    },
-                    transmission_options: libhoney::transmission::Options::default(),
-                };
+        if let Ok(honeycomb_key) = env::var("HONEYCOMBIO_WRITE_KEY") {
+            let dataset = env::var("HONEYCOMBIO_DATASET")
+                .unwrap_or_else(|_| format!("{}-{}", service_name, environment));
 
-                let telemetry_layer = new_honeycomb_telemetry_layer(service_name, honeycomb_config);
-                let subscriber = Registry::default()
-                    .with(trace_filter) // filter out low-level debug tracing
-                    // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
-                    .with(telemetry_layer); // publish to honeycomb backend
+            let honeycomb_config = libhoney::Config {
+                options: libhoney::client::Options {
+                    api_key: honeycomb_key,
+                    dataset,
+                    ..libhoney::client::Options::default()
+                },
+                transmission_options: libhoney::transmission::Options::default(),
+            };
 
-                tracing::subscriber::set_global_default(subscriber)?;
+            let telemetry_layer = new_honeycomb_telemetry_layer(service_name, honeycomb_config);
+            let subscriber = Registry::default()
+                .with(trace_filter) // filter out low-level debug tracing
+                // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
+                .with(telemetry_layer); // publish to honeycomb backend
 
-                log::info!("Honeycomb Tracing enabled - filter: {}", trace_filter);
-            } else {
-                let telemetry_layer = new_blackhole_telemetry_layer();
+            tracing::subscriber::set_global_default(subscriber)?;
 
-                let subscriber = Registry::default()
-                    .with(trace_filter) // filter out low-level debug tracing
-                    // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
-                    .with(telemetry_layer); // publish to honeycomb backend
+            log::info!("Honeycomb Tracing enabled - filter: {}", trace_filter);
+        } else {
+            let telemetry_layer = new_blackhole_telemetry_layer();
 
-                tracing::subscriber::set_global_default(subscriber)?;
+            let subscriber = Registry::default()
+                .with(trace_filter) // filter out low-level debug tracing
+                // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
+                .with(telemetry_layer); // publish to honeycomb backend
 
-                log::info!("Honeycomb Tracing off");
-            }
+            tracing::subscriber::set_global_default(subscriber)?;
+
+            log::info!("Honeycomb Tracing off");
         }
     }
 
