@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.0] - 2021-01-01
+## [0.4.0] - 2021-02-01
 
 The same as 0.3 but with a forgotten update to Tide 0.16.
 
