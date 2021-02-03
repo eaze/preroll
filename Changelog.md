@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2021-02-02
+
+- Updated the `"honeycomb"` feature to respect the `"HONEYCOMBIO_DATASET"` environment variable when possible.
+
 ## [0.4.0] - 2021-02-01
 
 The same as 0.3 but with a forgotten update to Tide 0.16.
