@@ -180,6 +180,7 @@ where
     Ok((client, conn_wrap))
 }
 
+#[allow(clippy::unnecessary_wraps)]
 pub(crate) fn create_server<State>(
     state: State,
     setup_routes_fns: impl Into<VariadicRoutes<State>>,
