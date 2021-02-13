@@ -34,23 +34,50 @@ impl TraceMiddleware {
         let mut parent_span: Option<SpanId> = None;
         let mut propagation: Option<Propagation> = None;
         if let Some(header) = req.header(PROPAGATION_HTTP_HEADER) {
-            let prop = Propagation::unmarshal_trace_context(header.as_str())?;
-            trace_id = Uuid::parse_str(&prop.trace_id)?
-                .as_u128()
-                .to_string()
-                .parse()?;
-            if !prop.parent_id.is_empty() {
-                match prop.parent_id.parse::<SpanId>() {
-                    Ok(span_id) => parent_span = Some(span_id),
-                    Err(e) => {
-                        log::warn!(
-                            "Error parsing parent span id from X-Honeycomb-Trace: {:?}",
-                            e
-                        )
+            match Propagation::unmarshal_trace_context(header.as_str()) {
+                Ok(prop) => {
+                    let uuid_id = match Uuid::parse_str(&prop.trace_id) {
+                        Ok(id) => id,
+                        Err(e) => {
+                            log::warn!(
+                                "Invalid {} trace id: \"{}\" - Error: {}",
+                                PROPAGATION_HTTP_HEADER,
+                                prop.trace_id,
+                                e
+                            );
+                            Uuid::new_v4()
+                        }
+                    };
+
+                    trace_id = uuid_id.as_u128().to_string().parse()?;
+
+                    if !prop.parent_id.is_empty() {
+                        match prop.parent_id.parse::<SpanId>() {
+                            Ok(span_id) => parent_span = Some(span_id),
+                            Err(e) => {
+                                log::warn!(
+                                    "Error parsing parent span id from X-Honeycomb-Trace: {:?}",
+                                    e
+                                )
+                            }
+                        }
+                    }
+                    propagation = Some(prop);
+                }
+                Err(e) => {
+                    log::warn!(
+                        "{} could not be un-marshaled: {}",
+                        PROPAGATION_HTTP_HEADER,
+                        e
+                    );
+                    if let Some(req_id) = req.ext::<RequestId>() {
+                        // Awful hacks around tracing-honeycomb's terrible TraceId api.
+                        trace_id = req_id.as_u128().to_string().parse()?;
+                    } else {
+                        trace_id = TraceId::generate();
                     }
                 }
-            }
-            propagation = Some(prop);
+            };
         } else if let Some(req_id) = req.ext::<RequestId>() {
             // Awful hacks around tracing-honeycomb's terrible TraceId api.
             trace_id = req_id.as_u128().to_string().parse()?;

@@ -31,7 +31,13 @@ impl RequestIdMiddleware {
         let request_id: RequestId;
         #[cfg(not(feature = "test"))]
         if let Some(header) = req.header("X-Request-Id") {
-            request_id = header.last().as_str().parse()?;
+            request_id = match header.last().as_str().parse() {
+                Ok(id) => id,
+                Err(e) => {
+                    log::warn!("Invalid X-Request-Id: \"{}\" - Error: {}", header, e);
+                    RequestId::new()
+                }
+            };
         } else {
             request_id = RequestId::new();
         }
