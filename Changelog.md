@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2020-02-16
+
+- Avoid causing http errors on invalid `X-Honeycomb-Id` and `X-Request-Id`.
+    - Instead, these get logged.
+
 ## [0.4.1] - 2021-02-02
 
 - Updated the `"honeycomb"` feature to respect the `"HONEYCOMBIO_DATASET"` environment variable when possible.
