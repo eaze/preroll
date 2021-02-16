@@ -41,6 +41,9 @@ jobs:
     steps:
     - uses: actions/checkout@master
 
+    - name: update clippy
+      run: rustup toolchain update stable
+
     - name: install nightly
       run: rustup toolchain install nightly
 
