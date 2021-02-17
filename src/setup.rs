@@ -17,7 +17,7 @@ use crate::builtins::monitor::setup_monitor;
 
 cfg_if! {
     if #[cfg(feature = "honeycomb")] {
-        use tracing_honeycomb::{new_blackhole_telemetry_layer, new_honeycomb_telemetry_layer};
+        use eaze_tracing_honeycomb::{new_blackhole_telemetry_layer, new_honeycomb_telemetry_layer};
         use tracing_subscriber::filter::LevelFilter;
         use tracing_subscriber::prelude::*;
         use tracing_subscriber::Registry;

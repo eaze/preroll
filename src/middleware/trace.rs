@@ -1,7 +1,6 @@
+use eaze_tracing_honeycomb::{register_dist_tracing_root, SpanId, TraceId};
 use tide::{Middleware, Next, Request};
 use tracing::instrument;
-use tracing_honeycomb::{register_dist_tracing_root, SpanId, TraceId};
-use uuid::Uuid;
 
 use super::extension_types::RequestId;
 use super::honeycomb::propagation::{Propagation, PROPAGATION_HTTP_HEADER};
@@ -36,20 +35,7 @@ impl TraceMiddleware {
         if let Some(header) = req.header(PROPAGATION_HTTP_HEADER) {
             match Propagation::unmarshal_trace_context(header.as_str()) {
                 Ok(prop) => {
-                    let uuid_id = match Uuid::parse_str(&prop.trace_id) {
-                        Ok(id) => id,
-                        Err(e) => {
-                            log::warn!(
-                                "Invalid {} trace id: \"{}\" - Error: {}",
-                                PROPAGATION_HTTP_HEADER,
-                                prop.trace_id,
-                                e
-                            );
-                            Uuid::new_v4()
-                        }
-                    };
-
-                    trace_id = uuid_id.as_u128().to_string().parse()?;
+                    trace_id = prop.trace_id.clone().into();
 
                     if !prop.parent_id.is_empty() {
                         match prop.parent_id.parse::<SpanId>() {
@@ -71,29 +57,27 @@ impl TraceMiddleware {
                         e
                     );
                     if let Some(req_id) = req.ext::<RequestId>() {
-                        // Awful hacks around tracing-honeycomb's terrible TraceId api.
-                        trace_id = req_id.as_u128().to_string().parse()?;
+                        trace_id = req_id.as_str().into();
                     } else {
-                        trace_id = TraceId::generate();
+                        trace_id = TraceId::new();
                     }
                 }
             };
         } else if let Some(req_id) = req.ext::<RequestId>() {
-            // Awful hacks around tracing-honeycomb's terrible TraceId api.
-            trace_id = req_id.as_u128().to_string().parse()?;
+            trace_id = req_id.as_str().into();
         } else {
-            trace_id = TraceId::generate();
+            trace_id = TraceId::new();
         }
 
-        req.set_ext(trace_id);
+        req.set_ext(trace_id.clone());
 
         if let Err(error) = register_dist_tracing_root(trace_id, parent_span) {
             log::error!("Failed to set honeycomb trace root: {:?}", error);
         }
 
-        match tracing_honeycomb::current_dist_trace_ctx() {
+        match eaze_tracing_honeycomb::current_dist_trace_ctx() {
             Ok((trace_id, span_id)) => {
-                log::info!("current_dist_trace_ctx: ({}, {})", trace_id, span_id)
+                log::debug!("current_dist_trace_ctx: ({}, {})", trace_id, span_id)
             }
             Err(error) => log::error!("Failed to get current_dist_trace_ctx: {:?}", error),
         }

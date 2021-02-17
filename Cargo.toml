@@ -34,7 +34,7 @@ all = ["honeycomb", "postgres"] # All add-ons
 
 honeycomb = ["_beeline", "_tracing", "libhoney-rust"]
 _beeline = ["base64", "thiserror"]
-_tracing = ["tracing", "tracing-futures", "tracing-honeycomb", "tracing-subscriber"]
+_tracing = ["tracing", "tracing-futures", "eaze-tracing-honeycomb", "tracing-subscriber"]
 
 postgres = ["sqlx", "tide-sqlx"]
 
@@ -119,8 +119,8 @@ optional = true
 version = "0.2.4"
 optional = true
 
-[dependencies.tracing-honeycomb]
-version = "0.1.0"
+[dependencies.eaze-tracing-honeycomb]
+version = "0.2.1-eaze.1"
 optional = true
 
 [dependencies.tracing-subscriber]
