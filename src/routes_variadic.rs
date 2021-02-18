@@ -30,7 +30,7 @@ pub struct VariadicRoutes<State>
 where
     State: Send + Sync + 'static,
 {
-    _phantom_state: PhantomData<State>,
+    _phantom_state: PhantomData<*const State>,
     pub routes: Vec<Box<dyn for<'r> Fn(Route<'r, Arc<State>>)>>,
 }
 
