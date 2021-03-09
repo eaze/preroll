@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.3] - 2020-02-22
+## [0.4.3] - 2021-02-22
 
 - Fixes `X-Honeycomb-Trace` header parsing.
     - Under the hood, this meant a switch to [the Eaze fork of tracing-honeycomb](https://github.com/eaze/tracing-honeycomb).
 
-## [0.4.2] - 2020-02-16
+## [0.4.2] - 2021-02-16
 
 - Avoid causing http errors on invalid `X-Honeycomb-Id` and `X-Request-Id`.
     - Instead, these get logged.
