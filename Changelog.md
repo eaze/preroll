@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2021-03-09
+
+- Dependency upgrade to sqlx 0.5 & tide-sqlx 0.5 for the `postgres` feature.
+
 ## [0.4.3] - 2021-02-22
 
 - Fixes `X-Honeycomb-Trace` header parsing.
