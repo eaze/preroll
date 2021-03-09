@@ -56,7 +56,19 @@ serde_json = "1.0"
 
 [dependencies.async-std]
 version = "1.8"
-features = ["attributes"]
+default-features = false
+features = [
+    "attributes",
+    # Defaults, minus gloo-timers.
+    "std",
+    "async-global-executor",
+    "async-io",
+    "futures-lite",
+    "kv-log-macro",
+    "log",
+    "num_cpus",
+    "pin-project-lite",
+]
 
 [dependencies.chrono]
 version = "0.4"
