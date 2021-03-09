@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2021-03-09
+
+- Reduce dependency footprint from async-std.
+    - Avoids wasm-related features.
+
 ## [0.5.0] - 2021-03-09
 
 - Dependency upgrade to sqlx 0.5 & tide-sqlx 0.5 for the `postgres` feature.

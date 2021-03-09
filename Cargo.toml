@@ -5,7 +5,7 @@ members = [
 
 [package]
 name = "preroll"
-version = "0.5.0"
+version = "0.5.1"
 authors = [
     "Jeremiah Senkpiel <fishrock123@rocketmail.com>",
 ]
