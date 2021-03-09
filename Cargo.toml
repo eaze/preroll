@@ -83,12 +83,12 @@ features = ["serde", "v4"]
 ## feature = postgres
 
 [dependencies.sqlx]
-version = "0.4.1"
+version = "0.5"
 optional = true
 features = ["runtime-async-std-native-tls", "postgres", "json", "chrono", "uuid"]
 
 [dependencies.tide-sqlx]
-version = "0.4"
+version = "0.5"
 optional = true
 default-features = false
 features = ["native-tls", "postgres"]
