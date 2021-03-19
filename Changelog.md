@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2]
+
+- Dependency upgrade to eaze-tracing-honeycomb 0.2.1-eaze.4
+
 ## [0.5.1] - 2021-03-09
 
 - Reduce dependency footprint from async-std.

@@ -53,7 +53,7 @@ Add-on features must be enabled via cargo features, e.g.
 
 ```toml
 [dependencies.preroll]
-version = "0.4"
+version = "0.5"
 features = ["honeycomb", "postgres"]
 ```
 
@@ -100,7 +100,7 @@ add-on features such as Postgres (via [SQLx][]).
 
 ## API Reference
 
-[API Reference on Docs.rs](https://docs.rs/preroll/0.4.1/preroll/#modules)
+[API Reference on Docs.rs](https://docs.rs/preroll/0.5.2/preroll/#modules)
 
 ## License
 
