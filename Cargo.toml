@@ -132,7 +132,7 @@ version = "0.2"
 optional = true
 
 [dependencies.eaze-tracing-honeycomb]
-version = "0.2.1-eaze.2"
+version = "0.2.1-eaze.4"
 optional = true
 
 [dependencies.tracing-subscriber]
