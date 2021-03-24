@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.5] - 2021-03-24
+
+- `honeycomb` Fixed timestamps to correctly be from spans/events.
+- Dependency upgrade to eaze-tracing-honeycomb 0.2.1-eaze.6
+
 ## [0.5.4] - 2021-03-24
 
-- `honeycomb`: Sub-millisecond "duration_ms" using f64
+- `honeycomb`: Sub-millisecond "duration_ms" using f64.
+- Dependency upgrade to eaze-tracing-honeycomb 0.2.1-eaze.5
 
 ## [0.5.3] - 2021-03-22
 
