@@ -95,12 +95,12 @@ add-on features such as Postgres (via [SQLx][]).
 [honeycomb.io]: https://www.honeycomb.io/
 [SQLx]: https://github.com/launchbadge/sqlx#sqlx
 [Surf]: https://github.com/http-rs/surf#surf
-[Test utils]: https://docs.rs/preroll/0.4.1/preroll/test_utils/index.html
+[Test utils]: https://docs.rs/preroll/0.5.4/preroll/test_utils/index.html
 [Tide]: https://github.com/http-rs/tide#tide
 
 ## API Reference
 
-[API Reference on Docs.rs](https://docs.rs/preroll/0.5.2/preroll/#modules)
+[API Reference on Docs.rs](https://docs.rs/preroll/0.5.4/preroll/#modules)
 
 ## License
 
