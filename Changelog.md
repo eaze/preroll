@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.3]
+## [0.5.3] - 2021-03-22
 
 - Enables Postgres trace events.
 - Dependency upgrade to tide-sqlx 0.6.0
 
-## [0.5.2]
+## [0.5.2] - 2021-03-19
 
 - Dependency upgrade to eaze-tracing-honeycomb 0.2.1-eaze.4
 
