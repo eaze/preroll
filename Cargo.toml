@@ -5,7 +5,7 @@ members = [
 
 [package]
 name = "preroll"
-version = "0.5.5"
+version = "0.5.6"
 authors = [
     "Jeremiah Senkpiel <fishrock123@rocketmail.com>",
 ]
@@ -132,7 +132,7 @@ version = "0.2"
 optional = true
 
 [dependencies.eaze-tracing-honeycomb]
-version = "0.2.1-eaze.6"
+version = "0.2.1-eaze.7"
 optional = true
 
 [dependencies.tracing-subscriber]
