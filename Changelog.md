@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.6]
+
+- Dependency upgrade to eaze-tracing-honeycomb 0.2.1-eaze.7
+    - `honeycomb`: This fixes a deadlock. See [this commit] for details.
+
+[this commit]: https://github.com/eaze/tracing-honeycomb/commit/9dd18b55ea96b95ce76d0051dbcbd085b7e7f2f1
+
 ## [0.5.5] - 2021-03-24
 
 - `honeycomb` Fixed timestamps to correctly be from spans/events.
