@@ -37,7 +37,7 @@ where
                 .unwrap_or(f64::NEG_INFINITY),
         };
 
-        Ok(Body::from_json(&status)?)
+        Body::from_json(&status)
     });
 }
 
