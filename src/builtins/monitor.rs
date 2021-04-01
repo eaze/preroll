@@ -6,6 +6,8 @@ use once_cell::sync::OnceCell;
 use serde::Serialize;
 use tide::{Body, Server};
 
+use crate::utils::HOSTNAME;
+
 static SERVICE_NAME: OnceCell<&'static str> = OnceCell::new();
 static START_TIME: OnceCell<Instant> = OnceCell::new();
 
@@ -26,8 +28,7 @@ where
         let status = Status {
             git: env::var("GIT_COMMIT")
                 .unwrap_or_else(|_| "No GIT_COMMIT environment variable.".to_string()),
-            hostname: env::var("HOST")
-                .unwrap_or_else(|_| "No HOST environment variable.".to_string()),
+            hostname: &*HOSTNAME,
             service: *SERVICE_NAME
                 .get()
                 .unwrap_or(&"service name not initialized"),
@@ -42,9 +43,9 @@ where
 }
 
 #[derive(Serialize)]
-struct Status {
+struct Status<'host> {
     git: String,
-    hostname: String,
+    hostname: &'host str,
     service: &'static str,
     uptime: f64,
 }

@@ -1,5 +1,12 @@
 //! Miscellaneous utilities.
 
+use lazy_static::lazy_static;
+
+lazy_static! {
+    pub(crate) static ref HOSTNAME: String =
+        gethostname::gethostname().to_string_lossy().to_string();
+}
+
 /// This function is useful for inspecting variables that rust-analyzer has trouble extracting type information for,
 /// namely returns from awaited futures.
 ///

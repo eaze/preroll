@@ -1,12 +1,9 @@
 use std::io::Write;
 use std::{io, process};
 
-use lazy_static::lazy_static;
 use log::kv;
 
-lazy_static! {
-    static ref HOSTNAME: String = gethostname::gethostname().to_string_lossy().to_string();
-}
+use crate::utils::HOSTNAME;
 
 // Modified from the json_env_logger crate
 pub fn log_format_json<F>(f: &mut F, record: &log::Record<'_>) -> io::Result<()>
