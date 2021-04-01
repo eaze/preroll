@@ -82,7 +82,28 @@ impl TraceMiddleware {
             Err(error) => log::error!("Failed to get current_dist_trace_ctx: {:?}", error),
         }
 
+        tracing::info!(
+            method = req.method().as_ref(),
+            host = req.host().unwrap_or(""),
+            path = req.url().path(),
+            query = req.url().query().unwrap_or(""),
+            frag = req.url().fragment().unwrap_or(""),
+            // Consider enabling when http_types::Version has an `as_ref<&'static str>()`.
+            // http_version = req.version().map(|v| v.as_ref()).unwrap_or(""),
+            "HTTP Request Info"
+        );
+
         let mut res = next.run(req).await;
+
+        tracing::info!(
+            status = res.status() as u16,
+            body_size = res
+                .len()
+                .map(|v| v.to_string())
+                .as_deref()
+                .unwrap_or("chunked"),
+            "HTTP Response Info"
+        );
 
         if let Some(prop) = propagation {
             res.insert_header("X-Honeycomb-Trace", prop.marshal_trace_context());
