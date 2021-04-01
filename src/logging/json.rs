@@ -22,19 +22,26 @@ where
     write!(f, "{{")?;
     write!(
         f,
-        "\"time\":\"{}\"",
-        chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
-    )?;
-    write!(f, ",\"hostname\":\"{}\"", *HOSTNAME)?;
-    write!(f, ",\"pid\":{}", process::id())?;
-    write!(
-        f,
-        ",\"level\":\"{}\"",
+        "\"level\":\"{}\"",
         format!("{}", record.level()).to_lowercase()
     )?;
-    write!(f, ",\"target\":\"{}\"", target)?;
+    write!(f, ",\"pid\":{}", process::id())?;
     write!(f, ",\"message\":")?;
     write_json_str(f, &record.args().to_string())?;
+
+    let mut visitor = Visitor { writer: f };
+    record
+        .key_values()
+        .visit(&mut visitor)
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+
+    write!(f, ",\"target\":\"{}\"", target)?;
+    write!(f, ",\"hostname\":\"{}\"", *HOSTNAME)?;
+    write!(
+        f,
+        ",\"time\":\"{}\"",
+        chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+    )?;
 
     struct Visitor<'w, W: Write> {
         writer: &'w mut W,
@@ -51,11 +58,6 @@ where
         }
     }
 
-    let mut visitor = Visitor { writer: f };
-    record
-        .key_values()
-        .visit(&mut visitor)
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
     writeln!(f, "}}")
 }
 
