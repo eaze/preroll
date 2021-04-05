@@ -28,6 +28,8 @@ cfg_if! {
 
 cfg_if! {
     if #[cfg(feature = "postgres")] {
+        use std::time::Duration;
+
         use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
         use sqlx::ConnectOptions;
 
@@ -207,6 +209,9 @@ where
         let max_connections: u32 = env::var("PGMAXCONNECTIONS")
             .map(|v| v.parse())
             .unwrap_or(Ok(5))?;
+        let max_lifetime: u64 = env::var("PGMAXLIFETIME")
+            .map(|v| v.parse())
+            .unwrap_or(Ok(60 * 30 /* 30 mins, in seconds */))?;
 
         let pgurl =
             env::var("PGURL").unwrap_or_else(|_| format!("postgres://localhost/{}", service_name));
@@ -216,6 +221,7 @@ where
 
         let pg_pool = PgPoolOptions::new()
             .max_connections(max_connections)
+            .max_lifetime(Duration::from_secs(max_lifetime))
             .connect_with(connect_opts)
             .await?;
 
