@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.6]
+## [0.5.7] - 2021-04-05
+
+- `honeycomb`: Added events for generic Request/Response http properties.
+- Changed the ordering of json log fields to be better for plaintext viewers.
+- Fixed hostname resolution in `/monitor/status`.
+
+## [0.5.6] - 2021-03-29
 
 - Dependency upgrade to eaze-tracing-honeycomb 0.2.1-eaze.7
     - `honeycomb`: This fixes a deadlock. See [this commit] for details.
@@ -16,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.5] - 2021-03-24
 
-- `honeycomb` Fixed timestamps to correctly be from spans/events.
+- `honeycomb`: Fixed timestamps to correctly be from spans/events.
 - Dependency upgrade to eaze-tracing-honeycomb 0.2.1-eaze.6
 
 ## [0.5.4] - 2021-03-24
