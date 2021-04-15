@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2021-04-15
+
+### Additions
+- `postgres`: Added a `PGMAXLIFETIME` environemnt variable, set in minutes.
+
+### Dependencies
 - `honeycomb`: Switched back to `tracing-honeycomb` and upgraded to `0.3`. 
    - This allows patch upgrades to be picked up via `cargo update`, and is otherwise identical to `0.2.1-eaze.7`.
 
