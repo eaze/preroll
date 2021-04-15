@@ -69,6 +69,7 @@ features = ["honeycomb", "postgres"]
         - Defaults to `"postgres://localhost/{service_name}"` (default postgres port).
         - `service_name` is from `preroll::main!("service_name", ...)`.
     - Env variable `PGMAXCONNECTIONS`, default 5 connections.
+    - Env variable `PGMAXLIFETIME`, default `30` (minutes).
     - Enables [`PostgresRequestExt`][prelude::PostgresRequestExt] and [`test_utils::create_client_and_postgres`][].
 
 #### List of other optional features:

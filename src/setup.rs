@@ -211,7 +211,7 @@ where
             .unwrap_or(Ok(5))?;
         let max_lifetime: u64 = env::var("PGMAXLIFETIME")
             .map(|v| v.parse())
-            .unwrap_or(Ok(60 * 30 /* 30 mins, in seconds */))?;
+            .unwrap_or(Ok(30 /* 30 mins */))?;
 
         let pgurl =
             env::var("PGURL").unwrap_or_else(|_| format!("postgres://localhost/{}", service_name));
@@ -221,7 +221,7 @@ where
 
         let pg_pool = PgPoolOptions::new()
             .max_connections(max_connections)
-            .max_lifetime(Duration::from_secs(max_lifetime))
+            .max_lifetime(Duration::from_secs(max_lifetime * 60 /* to seconds */))
             .connect_with(connect_opts)
             .await?;
 
