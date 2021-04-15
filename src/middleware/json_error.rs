@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use tide::{Body, Middleware, Next, Request, Result};
 
 #[cfg(feature = "honeycomb")]
-use eaze_tracing_honeycomb::TraceId;
+use tracing_honeycomb::TraceId;
 
 #[cfg(feature = "test")]
 use uuid::Uuid;

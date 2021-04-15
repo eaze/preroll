@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `honeycomb`: Switched back to `tracing-honeycomb` and upgraded to `0.3`. 
+   - This allows patch upgrades to be picked up via `cargo update`, and is otherwise identical to `0.2.1-eaze.7`.
+
 ## [0.5.7] - 2021-04-05
 
 - `honeycomb`: Added events for generic Request/Response http properties.

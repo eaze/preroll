@@ -1,6 +1,6 @@
-use eaze_tracing_honeycomb::{register_dist_tracing_root, SpanId, TraceId};
 use tide::{Middleware, Next, Request};
 use tracing::instrument;
+use tracing_honeycomb::{register_dist_tracing_root, SpanId, TraceId};
 
 use super::extension_types::RequestId;
 use super::honeycomb::propagation::{Propagation, PROPAGATION_HTTP_HEADER};
@@ -75,7 +75,7 @@ impl TraceMiddleware {
             log::error!("Failed to set honeycomb trace root: {:?}", error);
         }
 
-        match eaze_tracing_honeycomb::current_dist_trace_ctx() {
+        match tracing_honeycomb::current_dist_trace_ctx() {
             Ok((trace_id, span_id)) => {
                 log::debug!("current_dist_trace_ctx: ({}, {})", trace_id, span_id)
             }
