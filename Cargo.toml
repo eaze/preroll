@@ -81,7 +81,7 @@ features = ["derive"]
 [dependencies.surf]
 version = "2.1"
 default-features = false
-features = ["curl-client", "encoding"]
+features = ["h1-client-rustls", "encoding"]
 
 [dependencies.tide]
 version = "0.16"
