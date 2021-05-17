@@ -141,13 +141,17 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
             .map(|v| v.parse())
             .unwrap_or(Ok(LevelFilter::INFO))?;
 
-        if let Ok(honeycomb_key) = env::var("HONEYCOMBIO_WRITE_KEY") {
+        if let Ok(api_key) = env::var("HONEYCOMBIO_WRITE_KEY") {
             let dataset = env::var("HONEYCOMBIO_DATASET")
                 .unwrap_or_else(|_| format!("{}-{}", service_name, environment));
 
+            let api_host = env::var("HONEYCOMBIO_API_HOST")
+                .unwrap_or_else(|_| "https://api.honeycomb.io/".to_string());
+
             let honeycomb_config = libhoney::Config {
                 options: libhoney::client::Options {
-                    api_key: honeycomb_key,
+                    api_key,
+                    api_host,
                     dataset,
                     ..libhoney::client::Options::default()
                 },
