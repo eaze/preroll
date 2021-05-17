@@ -17,7 +17,11 @@ use crate::builtins::monitor::setup_monitor;
 
 cfg_if! {
     if #[cfg(feature = "honeycomb")] {
-        use tracing_honeycomb::{new_blackhole_telemetry_layer, new_honeycomb_telemetry_layer};
+        use tracing_honeycomb::{
+            new_blackhole_telemetry_layer,
+            new_honeycomb_telemetry_layer,
+            new_honeycomb_telemetry_layer_with_trace_sampling
+        };
         use tracing_subscriber::filter::LevelFilter;
         use tracing_subscriber::prelude::*;
         use tracing_subscriber::Registry;
@@ -158,7 +162,18 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
                 transmission_options: libhoney::transmission::Options::default(),
             };
 
-            let telemetry_layer = new_honeycomb_telemetry_layer(service_name, honeycomb_config);
+            let telemetry_layer = if let Ok(sample_rate) = env::var("HONEYCOMBIO_SAMPLE_RATE")
+                .unwrap_or_default()
+                .parse()
+            {
+                new_honeycomb_telemetry_layer_with_trace_sampling(
+                    service_name,
+                    honeycomb_config,
+                    sample_rate, // u32
+                )
+            } else {
+                new_honeycomb_telemetry_layer(service_name, honeycomb_config)
+            };
             let subscriber = Registry::default()
                 .with(trace_filter) // filter out low-level debug tracing
                 // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
