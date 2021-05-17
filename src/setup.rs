@@ -145,11 +145,11 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
             .map(|v| v.parse())
             .unwrap_or(Ok(LevelFilter::INFO))?;
 
-        if let Ok(api_key) = env::var("HONEYCOMBIO_WRITE_KEY") {
-            let dataset = env::var("HONEYCOMBIO_DATASET")
+        if let Ok(api_key) = env::var("HONEYCOMB_WRITE_KEY") {
+            let dataset = env::var("HONEYCOMB_DATASET")
                 .unwrap_or_else(|_| format!("{}-{}", service_name, environment));
 
-            let api_host = env::var("HONEYCOMBIO_API_HOST")
+            let api_host = env::var("HONEYCOMB_API_HOST")
                 .unwrap_or_else(|_| "https://api.honeycomb.io/".to_string());
 
             let honeycomb_config = libhoney::Config {
@@ -162,7 +162,7 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
                 transmission_options: libhoney::transmission::Options::default(),
             };
 
-            let telemetry_layer = if let Ok(sample_rate) = env::var("HONEYCOMBIO_SAMPLE_RATE")
+            let telemetry_layer = if let Ok(sample_rate) = env::var("HONEYCOMB_SAMPLE_RATE")
                 .unwrap_or_default()
                 .parse()
             {
