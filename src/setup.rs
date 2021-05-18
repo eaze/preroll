@@ -145,7 +145,7 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
             .map(|v| v.parse())
             .unwrap_or(Ok(LevelFilter::INFO))?;
 
-        if let Ok(api_key) = env::var("HONEYCOMB_WRITE_KEY") {
+        if let Ok(api_key) = env::var("HONEYCOMB_WRITEKEY") {
             let dataset = env::var("HONEYCOMB_DATASET")
                 .unwrap_or_else(|_| format!("{}-{}", service_name, environment));
 
