@@ -59,9 +59,10 @@ features = ["honeycomb", "postgres"]
 
 #### List of optional add-on features:
 - `"honeycomb"`: Enables tracing to [honeycomb.io].
-    - Env variable `HONEYCOMBIO_WRITE_KEY` (required).
+    - Env variable `HONEYCOMB_WRITEKEY` (required).
+    - Env variable `HONEYCOMB_API_HOST`, sets upstream event proxy.
     - Env variable `TRACELEVEL`, sets the tracing level filter, defaults to `info`.
-    - Writes to a dataset named `{service_name}-{environment}`.
+    - Env variable `HONEYCOMB_DATASET`, sets the dataset name, defaults to `{service_name}-{environment}`.
         - `service_name` is from `preroll::main!("service_name", ...)`.
         - `environment` is from `ENVIRONMENT`, or defaults to `"development"`.
 - `"postgres"`: Enables a postgres connection pool with transactions.
