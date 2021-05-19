@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [0.7.0] - 2021-05-19
+
+### Changes
+- The default backend for the included [Surf][] http client has changed from libcurl (via [Isahc][]) to [http-client's async-h1 client][].
+- `honeycomb`: Environemtn variables now start with `HONEYCOMB_` rather than `HONEYCOMBIO_`.
+    - Consistency with other honeycomb SDK's.
+- `honeycomb`: `HONEYCOMBIO_WRITE_KEY` is now `HONEYCOMB_WRITEKEY` (required).
+    - Consistency with other honeycomb SDK's.
+
+### Additions
+- `honeycomb`: Added `HONEYCOMB_SAMPLE_RATE` environment var usage.
+
+[http-client's async-h1 client]: https://github.com/http-rs/http-client/tree/main/src/h1
+[Isahc]: https://github.com/sagebind/isahc
+[Surf]: https://github.com/http-rs/surf
+
 ## [0.6.0] - 2021-04-15
 
 ### Additions
