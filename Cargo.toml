@@ -74,6 +74,10 @@ features = [
 version = "0.4"
 features = ["serde"]
 
+[dependencies.http-client]
+version = "6.4.0"
+features = ["unstable-config"]
+
 [dependencies.serde]
 version = "1.0"
 features = ["derive"]
@@ -81,7 +85,7 @@ features = ["derive"]
 [dependencies.surf]
 version = "2.1"
 default-features = false
-features = ["curl-client", "encoding"]
+features = ["h1-client", "encoding"]
 
 [dependencies.tide]
 version = "0.16"
