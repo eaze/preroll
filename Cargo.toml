@@ -78,6 +78,7 @@ features = ["serde"]
 
 [dependencies.http-client]
 version = "6.4.0"
+default-features = false
 features = ["h1_client", "rustls", "unstable-config"]
 
 [dependencies.serde]
