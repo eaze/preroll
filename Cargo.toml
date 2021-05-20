@@ -78,16 +78,16 @@ features = ["serde"]
 
 [dependencies.http-client]
 version = "6.4.0"
-features = ["unstable-config"]
+features = ["h1_client", "rustls", "unstable-config"]
 
 [dependencies.serde]
 version = "1.0"
 features = ["derive"]
 
 [dependencies.surf]
-version = "2.1"
+version = "2.2"
 default-features = false
-features = ["h1-client", "encoding"]
+features = ["h1-client-rustls", "encoding"]
 
 [dependencies.tide]
 version = "0.16"
@@ -107,13 +107,13 @@ features = ["serde", "v4"]
 [dependencies.sqlx]
 version = "0.5"
 optional = true
-features = ["runtime-async-std-native-tls", "postgres", "json", "chrono", "uuid"]
+features = ["runtime-async-std-rustls", "postgres", "json", "chrono", "uuid"]
 
 [dependencies.tide-sqlx]
 version = "0.6"
 optional = true
 default-features = false
-features = ["native-tls", "postgres", "tracing"]
+features = ["rustls", "postgres", "tracing"]
 
 ## feature = tracing
 
