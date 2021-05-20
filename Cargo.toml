@@ -27,6 +27,8 @@ rustdoc-args = ["--cfg", "docsrs"]
 docs = ["all"]
 test = []
 
+lambda = ["tide-lambda-listener"]
+
 custom_middleware = []
 
 ## Add-ons
@@ -91,6 +93,10 @@ features = ["h1-client", "encoding"]
 version = "0.16"
 default-features = false
 features = ["h1-server"]
+
+[dependencies.tide-lambda-listener]
+version = "0.1.3"
+optional = true
 
 [dependencies.uuid]
 version = "0.8"

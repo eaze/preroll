@@ -8,7 +8,6 @@ use std::future::Future;
 use std::sync::Arc;
 
 use cfg_if::cfg_if;
-use tide::listener::Listener;
 use tide::{Request, Server};
 
 pub use async_std::task::block_on;
@@ -41,8 +40,17 @@ cfg_if! {
     }
 }
 
+cfg_if! {
+    if #[cfg(feature = "lambda")] {
+        use tide_lambda_listener::LambdaListener;
+    } else {
+        use tide::listener::Listener;
+        use crate::middleware::LogMiddleware;
+    }
+}
+
 use crate::logging::{log_format_json, log_format_pretty};
-use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
+use crate::middleware::{JsonErrorMiddleware, RequestIdMiddleware};
 use crate::VariadicRoutes;
 
 /// The result type which is expected from functions passed to `preroll::main!`,
@@ -216,6 +224,7 @@ where
 
     let mut server = tide::with_state(Arc::new(state));
     server.with(RequestIdMiddleware::new());
+    #[cfg(not(feature = "lambda"))]
     server.with(LogMiddleware::new());
     server.with(JsonErrorMiddleware::new());
 
@@ -254,14 +263,22 @@ pub async fn start_server<State>(server: Server<Arc<State>>) -> Result<()>
 where
     State: Send + Sync + 'static,
 {
-    let port: u16 = env::var("PORT").map(|v| v.parse()).unwrap_or(Ok(8080))?;
-    let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
-
-    let mut listener = server.bind((host.as_str(), port)).await?;
-    for info in listener.info().iter() {
-        log::info!("Server listening on {}", info);
+    #[cfg(feature = "lambda")]
+    {
+        server.listen(LambdaListener::new()).await?;
     }
-    listener.accept().await?;
+    #[cfg(not(feature = "lambda"))]
+    {
+        let port: u16 = env::var("PORT").map(|v| v.parse()).unwrap_or(Ok(8080))?;
+        let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
 
+        let mut listener = server.bind((host.as_str(), port)).await?;
+        for info in listener.info().iter() {
+            log::info!("Server listening on {}", info);
+        }
+        listener.accept().await?;
+    }
+
+    // Essentially "never".
     Ok(())
 }
