@@ -16,11 +16,7 @@ use crate::builtins::monitor::setup_monitor;
 
 cfg_if! {
     if #[cfg(feature = "honeycomb")] {
-        use tracing_honeycomb::{
-            new_blackhole_telemetry_layer,
-            new_honeycomb_telemetry_layer,
-            new_honeycomb_telemetry_layer_with_trace_sampling
-        };
+        use tracing_honeycomb::new_blackhole_telemetry_layer;
         use tracing_subscriber::filter::LevelFilter;
         use tracing_subscriber::prelude::*;
         use tracing_subscriber::Registry;
@@ -154,34 +150,53 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
             .unwrap_or(Ok(LevelFilter::INFO))?;
 
         if let Ok(api_key) = env::var("HONEYCOMB_WRITEKEY") {
-            let dataset = env::var("HONEYCOMB_DATASET")
-                .unwrap_or_else(|_| format!("{}-{}", service_name, environment));
+            let maybe_sample_rate = env::var("HONEYCOMB_SAMPLE_RATE");
 
-            let api_host = env::var("HONEYCOMB_API_HOST")
-                .unwrap_or_else(|_| "https://api.honeycomb.io/".to_string());
+            #[cfg(feature = "lambda")]
+            let telemetry_layer = {
+                // Just to avoid unused warnings.
+                // In this setup the environemnt's consumer will have to have this.
+                drop(api_key);
 
-            let honeycomb_config = libhoney::Config {
-                options: libhoney::client::Options {
-                    api_key,
-                    api_host,
-                    dataset,
-                    ..libhoney::client::Options::default()
-                },
-                transmission_options: libhoney::transmission::Options::default(),
+                let telemetry_builder = tracing_honeycomb::Builder::new_stdout(service_name);
+
+                if let Ok(sample_rate) = maybe_sample_rate.unwrap_or_default().parse() {
+                    telemetry_builder.with_trace_sampling(sample_rate /* u32 */)
+                } else {
+                    telemetry_builder
+                }
+                .build()
             };
 
-            let telemetry_layer = if let Ok(sample_rate) = env::var("HONEYCOMB_SAMPLE_RATE")
-                .unwrap_or_default()
-                .parse()
-            {
-                new_honeycomb_telemetry_layer_with_trace_sampling(
-                    service_name,
-                    honeycomb_config,
-                    sample_rate, // u32
-                )
-            } else {
-                new_honeycomb_telemetry_layer(service_name, honeycomb_config)
+            #[cfg(not(feature = "lambda"))]
+            let telemetry_layer = {
+                let dataset = env::var("HONEYCOMB_DATASET")
+                    .unwrap_or_else(|_| format!("{}-{}", service_name, environment));
+
+                let api_host = env::var("HONEYCOMB_API_HOST")
+                    .unwrap_or_else(|_| "https://api.honeycomb.io/".to_string());
+
+                let honeycomb_config = libhoney::Config {
+                    options: libhoney::client::Options {
+                        api_key,
+                        api_host,
+                        dataset,
+                        ..libhoney::client::Options::default()
+                    },
+                    transmission_options: libhoney::transmission::Options::default(),
+                };
+
+                let telemetry_builder =
+                    tracing_honeycomb::Builder::new_libhoney(service_name, honeycomb_config);
+
+                if let Ok(sample_rate) = maybe_sample_rate.unwrap_or_default().parse() {
+                    telemetry_builder.with_trace_sampling(sample_rate /* u32 */)
+                } else {
+                    telemetry_builder
+                }
+                .build()
             };
+
             let subscriber = Registry::default()
                 .with(trace_filter) // filter out low-level debug tracing
                 // .with(tracing_subscriber::fmt::Layer::default()) // log to stdout
