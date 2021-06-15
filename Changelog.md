@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-# [0.7.0] - 2021-05-19
+## [0.8.0] - 2021-06-15
+
+### Additions
+- New `"lambda-http"` feature, which changes the HTTP listener to connect to an AWS Lambda execution environment.
+    - Is no longer reachable as a regular http server, but accepts http lambda requests as if it were one.
+    - Some environment variables, such as `PORT`, are disregarded.
+    - If the `"honeycomb"` feature is enabled, trace events are written to stdout, and must be collected via
+        a layer provided by Honeycomb. See: https://docs.honeycomb.io/getting-data-in/integrations/aws/aws-lambda/
+
+## [0.7.0] - 2021-05-19
 
 ### Changes
 - The default backend for the included [Surf][] http client has changed from libcurl (via [Isahc][]) to [http-client's async-h1 client][].
