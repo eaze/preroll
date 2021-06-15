@@ -27,7 +27,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 docs = ["all"]
 test = []
 
-lambda = ["tide-lambda-listener"]
+lambda-http = ["tide-lambda-listener"]
 
 custom_middleware = []
 
