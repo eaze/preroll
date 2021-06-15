@@ -4,7 +4,7 @@
 
 Easy boilerplate utilities for Rust http services which use [async-std][], [Tide][], [Surf][], and friends.
 
-Allows for service setup with feature-configured builtins for maximum service consistency with low developer overhead,
+Allows for service setup with feature-configured built-ins for maximum service consistency with low developer overhead,
 and for easily integration testing the service without using a live network.
 
 **Scroll to the bottom for API Reference**
@@ -45,7 +45,7 @@ preroll::main!("hello-world", setup_app_state, setup_routes);
 - Boilerplate `main` setup via [`preroll::main!`][], with optional features automatically configured.
 - A [`preroll::prelude::*;`][] with all extension traits.
 - Response logging with many details.
-- Automatic JSON reponses for errors in the form of [`JsonError`][].
+- Automatic JSON responses for errors in the form of [`JsonError`][].
 - [Test utils][] with easy mock client setup.
 
 ### Optional features
@@ -59,12 +59,16 @@ features = ["honeycomb", "postgres"]
 
 #### List of optional add-on features:
 - `"honeycomb"`: Enables tracing to [honeycomb.io].
-    - Env variable `HONEYCOMB_WRITEKEY` (required).
-    - Env variable `HONEYCOMB_API_HOST`, sets upstream event proxy.
+    - Env variable `HONEYCOMBIO_WRITE_KEY` (required).
     - Env variable `TRACELEVEL`, sets the tracing level filter, defaults to `info`.
-    - Env variable `HONEYCOMB_DATASET`, sets the dataset name, defaults to `{service_name}-{environment}`.
+    - Writes to a dataset named `{service_name}-{environment}`.
         - `service_name` is from `preroll::main!("service_name", ...)`.
         - `environment` is from `ENVIRONMENT`, or defaults to `"development"`.
+- `"lambda-http"`: Changes the HTTP listener to connect to an AWS Lambda execution environment.
+    - Is no longer reachable as a regular http server, but accepts http lambda requests as if it were one.
+    - Some environment variables, such as `PORT`, are disregarded.
+    - If the `"honeycomb"` feature is enabled, trace events are written to stdout, and must be collected via
+        a layer provided by Honeycomb. See: https://docs.honeycomb.io/getting-data-in/integrations/aws/aws-lambda/
 - `"postgres"`: Enables a postgres connection pool with transactions.
     - Env variable `PGURL`, which should be a properly formatted `postgres://` database url.
         - Defaults to `"postgres://localhost/{service_name}"` (default postgres port).
@@ -90,9 +94,9 @@ The following environment variables are read during `preroll::main!`:
 This crate is intentionally somewhat prescriptive in how it templates a service and the interaction with
 add-on features such as Postgres (via [SQLx][]).
 
-[`preroll::main!`]: https://docs.rs/preroll/0.4.1/preroll/macro.main.html
-[`preroll::prelude::*;`]: https://docs.rs/preroll/0.4.1/preroll/prelude/index.html
-[`JsonError`]: https://docs.rs/preroll/0.4.1/preroll/struct.JsonError.html
+[`preroll::main!`]: https://docs.rs/preroll/0.5.4/preroll/macro.main.html
+[`preroll::prelude::*;`]: https://docs.rs/preroll/0.5.4/preroll/prelude/index.html
+[`JsonError`]: https://docs.rs/preroll/0.5.4/preroll/struct.JsonError.html
 [async-std]: https://async.rs/
 [honeycomb.io]: https://www.honeycomb.io/
 [SQLx]: https://github.com/launchbadge/sqlx#sqlx
@@ -102,7 +106,7 @@ add-on features such as Postgres (via [SQLx][]).
 
 ## API Reference
 
-[API Reference on Docs.rs](https://docs.rs/preroll/0.5.4/preroll/#modules)
+[API Reference on Docs.rs](https://docs.rs/preroll/0.5.2/preroll/#modules)
 
 ## License
 
