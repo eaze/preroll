@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2021-07-12
+
+### Fixes
+- `lambda-http`: No longer disables the logging middleware.
+
 ## [0.8.0] - 2021-06-15
 
 ### Additions
