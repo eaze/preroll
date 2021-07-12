@@ -41,12 +41,11 @@ cfg_if! {
         use tide_lambda_listener::LambdaListener;
     } else {
         use tide::listener::Listener;
-        use crate::middleware::LogMiddleware;
     }
 }
 
 use crate::logging::{log_format_json, log_format_pretty};
-use crate::middleware::{JsonErrorMiddleware, RequestIdMiddleware};
+use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
 use crate::VariadicRoutes;
 
 /// The result type which is expected from functions passed to `preroll::main!`,
@@ -239,7 +238,6 @@ where
 
     let mut server = tide::with_state(Arc::new(state));
     server.with(RequestIdMiddleware::new());
-    #[cfg(not(feature = "lambda"))]
     server.with(LogMiddleware::new());
     server.with(JsonErrorMiddleware::new());
 
