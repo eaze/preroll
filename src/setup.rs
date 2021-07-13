@@ -37,7 +37,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(feature = "lambda")] {
+    if #[cfg(feature = "lambda-http")] {
         use tide_lambda_listener::LambdaListener;
     } else {
         use tide::listener::Listener;
@@ -151,7 +151,7 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
         if let Ok(api_key) = env::var("HONEYCOMB_WRITEKEY") {
             let maybe_sample_rate = env::var("HONEYCOMB_SAMPLE_RATE");
 
-            #[cfg(feature = "lambda")]
+            #[cfg(feature = "lambda-http")]
             let telemetry_layer = {
                 // Just to avoid unused warnings.
                 // In this setup the environemnt's consumer will have to have this.
@@ -167,7 +167,7 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
                 .build()
             };
 
-            #[cfg(not(feature = "lambda"))]
+            #[cfg(not(feature = "lambda-http"))]
             let telemetry_layer = {
                 let dataset = env::var("HONEYCOMB_DATASET")
                     .unwrap_or_else(|_| format!("{}-{}", service_name, environment));
@@ -276,11 +276,11 @@ pub async fn start_server<State>(server: Server<Arc<State>>) -> Result<()>
 where
     State: Send + Sync + 'static,
 {
-    #[cfg(feature = "lambda")]
+    #[cfg(feature = "lambda-http")]
     {
         server.listen(LambdaListener::new()).await?;
     }
-    #[cfg(not(feature = "lambda"))]
+    #[cfg(not(feature = "lambda-http"))]
     {
         let port: u16 = env::var("PORT").map(|v| v.parse()).unwrap_or(Ok(8080))?;
         let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
