@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2021-07-12
+
+### Fixes
+- `lambda-http`: This feature flag now actually works. (Oops.)
+
 ## [0.8.1] - 2021-07-12
 
 ### Fixes
