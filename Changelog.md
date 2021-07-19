@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.3] - 2021-07-19
+
+### Improvements
+- The exported test assertion helpers now use `#[track_caller]` to have better error location / backtrace output.
+    - See https://doc.rust-lang.org/reference/attributes/codegen.html#the-track_caller-attribute
+
 ## [0.8.2] - 2021-07-12
 
 ### Fixes
