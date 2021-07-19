@@ -316,6 +316,7 @@ where
 /// }
 /// ```
 #[allow(dead_code)] // Not actually dead code. (??)
+#[track_caller]
 pub async fn assert_json_error<Status>(
     mut res: impl AsMut<http::Response>,
     status: Status,
@@ -388,6 +389,7 @@ pub async fn assert_json_error<Status>(
 ///     Ok(())
 /// }
 /// ```
+#[track_caller]
 pub async fn assert_status_json<StructType, Status>(
     mut res: impl AsMut<http::Response>,
     status: Status,
@@ -442,6 +444,7 @@ where
 ///     Ok(())
 /// }
 /// ```
+#[track_caller]
 pub async fn assert_status<Status>(mut res: impl AsMut<http::Response>, status: Status) -> String
 where
     Status: TryInto<StatusCode>,
