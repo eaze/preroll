@@ -32,7 +32,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use cfg_if::cfg_if;
-use surf::{Client, StatusCode, Url};
+use surf::{Client, Config, StatusCode, Url};
 use tide::{http, Server};
 
 use crate::builtins::monitor::setup_monitor;
@@ -93,8 +93,10 @@ where
 {
     let server = create_server(state, setup_routes_fns)?;
 
-    let mut client = Client::with_http_client(server);
-    client.set_base_url(Url::parse("http://localhost:8080")?); // Address not actually used.
+    let client: Client = Config::new()
+        .set_http_client(server)
+        .set_base_url(Url::parse("http://localhost:8080")?) // Address not actually used.
+        .try_into()?;
 
     Ok(client)
 }
@@ -281,8 +283,11 @@ where
     let mut mocks_server = tide::new();
     setup_mocks_fn(&mut mocks_server);
 
-    let mut mock_client = Client::with_http_client(mocks_server);
-    mock_client.set_base_url(Url::parse(base_url.as_ref()).unwrap());
+    let mock_client: Client = Config::new()
+        .set_http_client(mocks_server)
+        .set_base_url(Url::parse(base_url.as_ref()).unwrap())
+        .try_into()
+        .expect("async-h1 client from config is infallible");
 
     mock_client
 }

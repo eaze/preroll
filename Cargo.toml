@@ -77,16 +77,16 @@ version = "0.4"
 features = ["serde"]
 
 [dependencies.http-client]
-version = "6.4.0"
+version = "6.5.1"
 default-features = false
-features = ["h1_client", "rustls", "unstable-config"]
+features = ["h1_client", "rustls"]
 
 [dependencies.serde]
 version = "1.0"
 features = ["derive"]
 
 [dependencies.surf]
-version = "2.2"
+version = "2.3"
 default-features = false
 features = ["h1-client-rustls", "encoding"]
 
