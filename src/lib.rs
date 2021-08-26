@@ -104,7 +104,8 @@
 //! [Test utils]: https://docs.rs/preroll/0.8.0/preroll/test_utils/index.html
 //! [Tide]: https://github.com/http-rs/tide#tide
 
-#![forbid(unsafe_code, future_incompatible)]
+#![forbid(unsafe_code)]
+#![deny(future_incompatible)]
 #![warn(
     missing_debug_implementations,
     rust_2018_idioms,
