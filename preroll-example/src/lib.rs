@@ -17,7 +17,8 @@ struct Query {
 }
 
 async fn get_client_error(req: Request<Arc<State>>) -> tide::Result<&'static str> {
-    let _query: Query = req.query()?;
+    let query: Query = req.query()?;
+    let _param = query.param;
     Ok("Should error")
 }
 
