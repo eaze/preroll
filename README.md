@@ -106,7 +106,7 @@ add-on features such as Postgres (via [SQLx][]).
 
 ## API Reference
 
-[API Reference on Docs.rs](https://docs.rs/preroll/0.5.2/preroll/#modules)
+[API Reference on Docs.rs](https://docs.rs/preroll/0.8.4/preroll/#modules)
 
 ## License
 

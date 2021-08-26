@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.4] - 2021-08-26
+
+### Dependencies
+- Update to surf 2.3
+- Update to env_logger 0.9
+
 ## [0.8.3] - 2021-07-19
 
 ### Improvements
