@@ -105,9 +105,9 @@ where
 pub fn initial_setup(service_name: &'static str) -> Result<()> {
     color_eyre::install()?;
 
-    let log_level: log::LevelFilter;
-    let log_level_from_env = env::var("LOGLEVEL")
-        .map(|v| v.parse().expect("LOGLEVEL must be a valid log level."));
+    let log_level = env::var("LOGLEVEL")
+        .map(|v| v.parse().expect("LOGLEVEL must be a valid log level."))
+        .unwrap_or(log::LevelFilter::Info);
 
     if env::var("FORCE_DOTENV").is_ok() || env::var("DEBUG_DOTENV").is_ok() {
         dotenv::dotenv().ok();
@@ -117,9 +117,6 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
 
     // Logging
     if environment.starts_with("prod") {
-        // Production
-        log_level = log_level_from_env.unwrap_or(log::LevelFilter::Info);
-
         env_logger::builder()
             .format(log_format_json)
             .filter_level(log_level)
@@ -128,8 +125,6 @@ pub fn initial_setup(service_name: &'static str) -> Result<()> {
     } else {
         // Development
         dotenv::dotenv().ok();
-
-        log_level = log_level_from_env.unwrap_or(log::LevelFilter::Debug);
 
         env_logger::builder()
             .format(log_format_pretty)
