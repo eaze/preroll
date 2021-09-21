@@ -176,8 +176,10 @@ where
     )));
     server.with(PostgresTestMiddleware(conn_wrap.clone()));
 
-    let mut client = Client::with_http_client(server);
-    client.set_base_url(Url::parse("http://localhost:8080")?); // Address not actually used.
+    let client: Client = Config::new()
+        .set_http_client(server)
+        .set_base_url(Url::parse("http://localhost:8080")?) // Address not actually used.
+        .try_into()?;
 
     Ok((client, conn_wrap))
 }
