@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.5] - 2021-09-20
+
+### Changes
+
+This release comes with a minor change to the debug (development) mode defaults.
+
+- Change: `LOGLEVEL` defaults to `info` rather than `debug` in debug mode.
+
 ## [0.8.4] - 2021-08-26
 
 ### Dependencies
