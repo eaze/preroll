@@ -11,6 +11,12 @@ use crate::utils::HOSTNAME;
 static SERVICE_NAME: OnceCell<&'static str> = OnceCell::new();
 static START_TIME: OnceCell<Instant> = OnceCell::new();
 
+use lazy_static::lazy_static;
+
+lazy_static! {
+    static ref PING_RESPONSE: String = petname::petname(2, "-");
+}
+
 pub fn setup_monitor<State>(service_name: &'static str, server: &mut Server<Arc<State>>)
 where
     State: Send + Sync + 'static,
@@ -18,11 +24,9 @@ where
     SERVICE_NAME.set(service_name).ok();
     START_TIME.set(Instant::now()).ok();
 
-    server.at("/monitor/ping").get(|_| async {
-        Ok(*SERVICE_NAME
-            .get()
-            .unwrap_or(&"service name not initialized"))
-    });
+    server
+        .at("/monitor/ping")
+        .get(|_| async { Ok(PING_RESPONSE.as_str()) });
 
     server.at("/monitor/status").get(|_| async {
         let status = Status {
@@ -36,6 +40,7 @@ where
                 .get()
                 .map(|start| start.elapsed().as_secs_f64())
                 .unwrap_or(f64::NEG_INFINITY),
+            ping: PING_RESPONSE.to_string(),
         };
 
         Body::from_json(&status)
@@ -48,6 +53,7 @@ struct Status<'host> {
     hostname: &'host str,
     service: &'static str,
     uptime: f64,
+    ping: String,
 }
 
 // TODO(Jeremiah):
