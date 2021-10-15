@@ -40,6 +40,7 @@ where
                 .get()
                 .map(|start| start.elapsed().as_secs_f64())
                 .unwrap_or(f64::NEG_INFINITY),
+            ping: PING_RESPONSE.to_string(),
         };
 
         Body::from_json(&status)
@@ -52,6 +53,7 @@ struct Status<'host> {
     hostname: &'host str,
     service: &'static str,
     uptime: f64,
+    ping: String,
 }
 
 // TODO(Jeremiah):

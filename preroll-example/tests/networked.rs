@@ -71,6 +71,7 @@ async fn test_preroll_main_networked() {
                 // hostname: String,
                 service: String,
                 uptime: f64,
+                ping: String,
             }
 
             let status: Status = serde_json::from_str(&response).unwrap();
@@ -79,6 +80,7 @@ async fn test_preroll_main_networked() {
             // assert_eq!(status.hostname, "hostname");
             assert_eq!(status.service, "preroll-example");
             assert!(status.uptime > 0.0);
+            assert!(!status.ping.is_empty());
         }
 
         #[cfg(debug_assertions)]
