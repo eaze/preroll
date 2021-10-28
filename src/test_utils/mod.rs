@@ -107,6 +107,18 @@ where
 /// This function also hands back a postgres transaction connection which is
 /// being used for the rest of the application, allowing easy rollback of everything.
 ///
+/// ## Default database
+///
+/// By default, preroll's postgres test functionality will try to connect to a database on
+/// `localhost` with a name matching `{crate_name}-test`, on the default postgres port `5432`.
+///
+/// If necessary, the following env variable overrides are available:
+/// - `TEST_DATABASE_HOST`: Set the test database hostname.
+/// - `TEST_DATABASE_PORT`: Set the test database port.
+/// - `TEST_DATABASE_NAME`: Set the test database name.
+///
+/// If the crate name cannot be found from `CARGO_PKG_NAME`, then the name `database_test` will be used.
+///
 /// ## Important!
 ///
 /// The `RwLockWriteGuard` returned from `pg_conn.write().await` MUST be [dropped][] before running
@@ -136,7 +148,7 @@ where
 ///         // or else there is a writer conflict and the test hangs indefinitely.
 ///         //
 ///         // Note: this is done automatically at the end of the closure.
-///         // We are still explicitly dropping so as to avoid accidently messing this up in the future.
+///         // We are still explicitly dropping so as to avoid accidentally messing this up in the future.
 ///         std::mem::drop(pg_conn);
 ///     }
 ///
@@ -162,8 +174,24 @@ where
     //
     // We do this so that all connections within any test run can share the same Transaction and be rolled back on Drop.
     let mut connect_opts = PgConnectOptions::new()
-        .host("localhost")
-        .database("database_test");
+        .host(
+            env::var("TEST_DATABASE_HOST")
+                .as_deref()
+                .unwrap_or("localhost"),
+        )
+        .port(
+            env::var("TEST_DATABASE_PORT")
+                .ok()
+                .map(|v| v.parse())
+                .transpose()?
+                .unwrap_or(5432),
+        )
+        .database(
+            env::var("TEST_DATABASE_NAME")
+                .or_else(|_| env::var("CARGO_PKG_NAME").map(|v| format!("{}-test", v)))
+                .as_deref()
+                .unwrap_or("database_test"),
+        );
     connect_opts.log_statements(log::LevelFilter::Debug);
 
     let pg_pool = PgPoolOptions::new()
