@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2021-10-28
+
+This release changes test database naming inference and `/monitor/ping` output.
+
+### Changes
+
+- Change: `/monitor/ping` now randomly generates a human-readable name at start-up, and will reply with that for the process duration.
+- Change: the default postgres test database name is now `{crate_name}-test`.
+
+### Additions
+
+- Support for overriding `host`, `name` and `port` for the postgres test database.
+
 ## [0.8.5] - 2021-09-20
 
 ### Changes

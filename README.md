@@ -86,7 +86,7 @@ The following environment variables are read during `preroll::main!`:
 - `ENVIRONMENT`: If this starts with `prod`, load the production-mode JSON logger, avoid `.env`.
 - `FORCE_DOTENV`: Override production-mode, force-load environment from `.env`.
 - `HOST`: Sets the hostname that this service will listen on. Defaults to `"127.0.0.1"`.
-- `LOGLEVEL`: Set the logger's level filter, defaults to `info`.
+- `LOGLEVEL`: Set the logger's level filter, defaults to `info` in production-mode, `debug` in development-mode.
 - `PORT`: Sets the port that this service will listen on. Defaults to `8080`.
 
 ### Note:
@@ -106,7 +106,7 @@ add-on features such as Postgres (via [SQLx][]).
 
 ## API Reference
 
-[API Reference on Docs.rs](https://docs.rs/preroll/0.8.4/preroll/#modules)
+[API Reference on Docs.rs](https://docs.rs/preroll/0.9.0/preroll/#modules)
 
 ## License
 
