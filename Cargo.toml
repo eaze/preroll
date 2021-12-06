@@ -9,7 +9,7 @@ version = "0.9.0"
 authors = [
     "Jeremiah Senkpiel <fishrock123@rocketmail.com>",
 ]
-edition = "2018"
+edition = "2021"
 license = "BlueOak-1.0.0"
 description = "Easy boilerplate utilities for Rust http services which use async-std, Tide, Surf, and friends."
 readme = "README.md"
