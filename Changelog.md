@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0]
+
+### Dependencies
+
+- Update to preroll 0.10
+- Update to tracing-subscriber 0.3
+
 ## [0.9.0] - 2021-10-28
 
 This release changes test database naming inference and `/monitor/ping` output.
