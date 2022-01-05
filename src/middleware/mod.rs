@@ -1,10 +1,12 @@
 use cfg_if::cfg_if;
 
+pub mod clacks;
 pub mod extension_types;
 pub mod json_error;
 pub mod logger;
 pub mod requestid;
 
+pub use clacks::ClacksMiddleware;
 pub use json_error::JsonErrorMiddleware;
 pub use logger::LogMiddleware;
 pub use requestid::RequestIdMiddleware;
