@@ -45,7 +45,9 @@ cfg_if! {
 }
 
 use crate::logging::{log_format_json, log_format_pretty};
-use crate::middleware::{JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware};
+use crate::middleware::{
+    ClacksMiddleware, JsonErrorMiddleware, LogMiddleware, RequestIdMiddleware,
+};
 use crate::VariadicRoutes;
 
 /// The result type which is expected from functions passed to `preroll::main!`,
@@ -223,6 +225,7 @@ where
     State: Send + Sync + 'static,
 {
     let mut base_server = tide::with_state(Arc::new(()));
+    base_server.with(ClacksMiddleware::new());
 
     // Set handlers for /monitor/ping, etc.
     //
@@ -230,6 +233,7 @@ where
     setup_monitor(service_name, &mut base_server);
 
     let mut server = tide::with_state(Arc::new(state));
+    server.with(ClacksMiddleware::new());
     server.with(RequestIdMiddleware::new());
     server.with(LogMiddleware::new());
     server.with(JsonErrorMiddleware::new());
