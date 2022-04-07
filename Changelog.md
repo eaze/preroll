@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1]
+
+- `x-clacks-overhead` header added to maintain feature parity with boltzmann
+- `clap` feature of the `petname` dependency disabled to improve build times
 ## [0.10.0]
 
 ### Dependencies
@@ -88,7 +92,7 @@ This release comes with a minor change to the debug (development) mode defaults.
 - `postgres`: Added a `PGMAXLIFETIME` environemnt variable, set in minutes.
 
 ### Dependencies
-- `honeycomb`: Switched back to `tracing-honeycomb` and upgraded to `0.3`. 
+- `honeycomb`: Switched back to `tracing-honeycomb` and upgraded to `0.3`.
    - This allows patch upgrades to be picked up via `cargo update`, and is otherwise identical to `0.2.1-eaze.7`.
 
 ## [0.5.7] - 2021-04-05

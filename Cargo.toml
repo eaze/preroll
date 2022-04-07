@@ -3,7 +3,7 @@ members = ["preroll-example"]
 
 [package]
 name = "preroll"
-version = "0.10.0"
+version = "0.10.1"
 authors = ["Jeremiah Senkpiel <fishrock123@rocketmail.com>"]
 edition = "2021"
 license = "BlueOak-1.0.0"
