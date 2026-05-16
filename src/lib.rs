@@ -161,6 +161,14 @@ pub mod utils;
 /// The format of error responses from preroll's error handling middleware.
 pub use middleware::json_error::JsonError;
 
+/// Per-request correlation id stamped on every inbound request by
+/// `RequestIdMiddleware` (read from `X-Request-Id` when present, or
+/// freshly generated). Re-exported so downstream services can read
+/// the resolved id off the request via `req.ext::<RequestId>()` —
+/// useful for compliance/audit blobs that want to carry the same
+/// id preroll echoes on the response.
+pub use middleware::extension_types::RequestId;
+
 pub use routes_variadic::VariadicRoutes;
 
 /// The result type which is expected from functions passed to `preroll::main!`.
