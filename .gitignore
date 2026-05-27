@@ -16,3 +16,5 @@ Cargo.lock
 # Added by cargo
 
 /target
+
+.claude/
